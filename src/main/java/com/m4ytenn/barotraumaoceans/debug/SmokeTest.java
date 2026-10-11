@@ -7,17 +7,19 @@ import com.m4ytenn.barotraumaoceans.worldgen.core.Province;
 import com.m4ytenn.barotraumaoceans.worldgen.core.ProvinceMap;
 import com.m4ytenn.barotraumaoceans.worldgen.core.TunnelNetwork;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.world.level.NoiseColumn;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.level.levelgen.RandomState;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 
@@ -224,37 +226,61 @@ public final class SmokeTest {
                     log("rock pocket at {} biome {}, 9 chunks in {} ms, blocks {}", p,
                             level.getBiome(p).unwrapKey().map(k -> k.location().toString()).orElse("?"),
                             (System.nanoTime() - t0) / 1_000_000, census);
-                    // The pocket must be sealed: no air next to water in the 3x3 chunks
-                    int breaches = 0;
-                    BlockPos.MutableBlockPos m = new BlockPos.MutableBlockPos();
+                    // The terrain must keep the pocket sealed: no pocket air next to water in the 3x3 chunks.
+                    // (Checked on the generator's base columns, because features such as water springs may
+                    // legitimately add water inside the cavern later.)
+                    ChunkGenerator gen = level.getChunkSource().getGenerator();
+                    RandomState rs = level.getChunkSource().randomState();
                     int bx0 = ((x >> 4) - 1) << 4;
                     int bz0 = ((z >> 4) - 1) << 4;
+                    NoiseColumn[] cols = new NoiseColumn[48 * 48];
+                    for (int i = 0; i < 48; i++) {
+                        for (int j = 0; j < 48; j++) {
+                            cols[i * 48 + j] = gen.getBaseColumn(bx0 + i, bz0 + j, level, rs);
+                        }
+                    }
+                    int breaches = 0;
+                    int pocketAir = 0;
                     for (int yy = y0; yy <= y1; yy++) {
-                        for (int bx = bx0 + 1; bx < bx0 + 47; bx++) {
-                            for (int bz = bz0 + 1; bz < bz0 + 47; bz++) {
-                                if (!level.getBlockState(m.set(bx, yy, bz)).isAir()) {
+                        for (int i = 1; i < 47; i++) {
+                            for (int j = 1; j < 47; j++) {
+                                if (!cols[i * 48 + j].getBlock(yy).is(Blocks.CAVE_AIR)) {
                                     continue;
                                 }
-                                for (Direction d : Direction.values()) {
-                                    if (level.getFluidState(m.set(bx, yy, bz).move(d)).is(FluidTags.WATER)) {
-                                        breaches++;
-                                        break;
-                                    }
+                                pocketAir++;
+                                if (isWater(cols[(i - 1) * 48 + j].getBlock(yy)) || isWater(cols[(i + 1) * 48 + j].getBlock(yy))
+                                        || isWater(cols[i * 48 + j - 1].getBlock(yy)) || isWater(cols[i * 48 + j + 1].getBlock(yy))
+                                        || isWater(cols[i * 48 + j].getBlock(yy - 1)) || isWater(cols[i * 48 + j].getBlock(yy + 1))) {
+                                    breaches++;
                                 }
                             }
                         }
                     }
-                    if (breaches > 0) {
-                        fail("rock pocket is not sealed: " + breaches + " air blocks touch water");
+                    if (pocketAir == 0) {
+                        fail("rock pocket terrain has no cave air");
+                    } else if (breaches > 0) {
+                        fail("rock pocket is not sealed: " + breaches + " pocket blocks touch water");
                     } else {
-                        log("rock pocket sealed: no air block touches water");
+                        log("rock pocket sealed: {} pocket blocks, none touches water", pocketAir);
                     }
+                    Holder<Biome> pocketBiome = level.getBiome(p);
+                    List<String> springs = new ArrayList<>();
+                    List<net.minecraft.core.HolderSet<net.minecraft.world.level.levelgen.placement.PlacedFeature>> steps = pocketBiome.value().getGenerationSettings().features();
+                    int springStep = net.minecraft.world.level.levelgen.GenerationStep.Decoration.FLUID_SPRINGS.ordinal();
+                    if (steps.size() > springStep) {
+                        steps.get(springStep).forEach(f -> springs.add(f.unwrapKey().map(k -> k.location().toString()).orElse("?")));
+                    }
+                    log("rock pocket biome fluid springs: {}", springs);
                     section(level, "rock pocket", p, true, 60, 40, 2);
                     return;
                 }
             }
         }
         log("rock pocket: none found");
+    }
+
+    private static boolean isWater(BlockState s) {
+        return s.getFluidState().is(FluidTags.WATER);
     }
 
     private static Map<String, Integer> openCensus(ChunkAccess chunk, int y0, int y1) {
