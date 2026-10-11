@@ -7,7 +7,7 @@ public class NavCheck {
         Map<String,String> m = new HashMap<>();
         for (int i = 1; i < args.length; i++) { String[] kv = args[i].split("=",2); m.put(kv[0], kv[1]); }
         OceanSettings s = OceanSettings.fromMap(m);
-        OceanTerrain T = OceanTerrain.get(seed, s);
+        OceanTerrain T = OceanTerrain.get(seed, s, true);
         double clear = T.network.clearRadius;
         int tunnels = 0, samples = 0, blocked = 0, blockedTunnels = 0;
         int[] cls = new int[3];

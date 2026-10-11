@@ -1,7 +1,6 @@
 package com.m4ytenn.barotraumaoceans.worldgen;
 
 import com.m4ytenn.barotraumaoceans.BarotraumaOceans;
-import com.m4ytenn.barotraumaoceans.worldgen.core.Hashing;
 import com.m4ytenn.barotraumaoceans.worldgen.core.OceanSettings;
 import com.m4ytenn.barotraumaoceans.worldgen.core.OceanTerrain;
 import com.m4ytenn.barotraumaoceans.worldgen.core.SimplexNoise;
@@ -16,49 +15,31 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunkSection;
-import net.minecraft.world.level.levelgen.Heightmap;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Paints materials after the terrain and the JSON surface rules ran:
- * <ul>
- *     <li>the ice crust (packed ice, blue ice veins, snow on top),</li>
- *     <li>sediment on every floor that faces water - seabed, channel floors, cavern floors - per biome,</li>
- *     <li>optional ceiling blocks,</li>
- *     <li>wavy rock strata through the crust.</li>
- * </ul>
- * Vanilla surface rules only detect floors below air, which never happens under water, so this is done here.
+ * Puts sediment on every floor that faces water or air - seabed, channel and cavern floors - and optional
+ * ceiling blocks, per biome. Vanilla surface rules only detect floors below air, which never happens under
+ * water, so this is done here. Sections that are completely solid or completely open are skipped.
  */
 public final class SurfacePainter {
 
-    /** Floor/ceiling materials of a biome. {@code null} entries mean "keep the rock". */
-    record Palette(BlockState top, BlockState alt1, BlockState alt2, BlockState sub, BlockState ceiling) {
+    /**
+     * Floor/ceiling materials of a biome. {@code null} entries mean "keep the rock". Biomes of other mods use
+     * {@link #DEFAULT} under water and keep their own floors in dry caves (their surface rules handle those).
+     */
+    record Palette(BlockState top, BlockState alt1, BlockState alt2, BlockState sub, BlockState ceiling, boolean foreign) {
     }
 
-    private static final BlockState STONE = Blocks.STONE.defaultBlockState();
-    private static final BlockState DEEPSLATE = Blocks.DEEPSLATE.defaultBlockState();
-    private static final BlockState PACKED_ICE = Blocks.PACKED_ICE.defaultBlockState();
-    private static final BlockState BLUE_ICE = Blocks.BLUE_ICE.defaultBlockState();
-    private static final BlockState SNOW_BLOCK = Blocks.SNOW_BLOCK.defaultBlockState();
-
-    private static final Palette DEFAULT = p(Blocks.SAND, Blocks.GRAVEL, Blocks.CLAY, Blocks.SAND, null);
+    private static final Palette DEFAULT = new Palette(Blocks.SAND.defaultBlockState(), Blocks.GRAVEL.defaultBlockState(),
+            Blocks.CLAY.defaultBlockState(), Blocks.SAND.defaultBlockState(), null, true);
     private static final Map<ResourceLocation, Palette> PALETTES = new HashMap<>();
     private static final Map<Holder<Biome>, Palette> CACHE = new ConcurrentHashMap<>();
-
-    private static final BlockState[] UPPER_STRATA = {
-            Blocks.ANDESITE.defaultBlockState(), Blocks.TUFF.defaultBlockState(), Blocks.DIORITE.defaultBlockState(),
-            Blocks.GRANITE.defaultBlockState(), Blocks.CALCITE.defaultBlockState(), Blocks.DRIPSTONE_BLOCK.defaultBlockState(),
-            Blocks.ANDESITE.defaultBlockState(), Blocks.TUFF.defaultBlockState()
-    };
-    private static final BlockState[] LOWER_STRATA = {
-            Blocks.TUFF.defaultBlockState(), Blocks.SMOOTH_BASALT.defaultBlockState(), Blocks.TUFF.defaultBlockState(),
-            Blocks.ANDESITE.defaultBlockState(), Blocks.CALCITE.defaultBlockState(), Blocks.DRIPSTONE_BLOCK.defaultBlockState(),
-            Blocks.BLACKSTONE.defaultBlockState(), Blocks.TUFF.defaultBlockState()
-    };
 
     static {
         put("abyssal_plains", p(Blocks.SAND, Blocks.GRAVEL, Blocks.CLAY, Blocks.SANDSTONE, null));
@@ -82,7 +63,7 @@ public final class SurfacePainter {
     }
 
     private static Palette p(Block top, Block alt1, Block alt2, Block sub, Block ceiling) {
-        return new Palette(state(top), state(alt1), state(alt2), state(sub), state(ceiling));
+        return new Palette(state(top), state(alt1), state(alt2), state(sub), state(ceiling), false);
     }
 
     private static BlockState state(Block b) {
@@ -100,8 +81,14 @@ public final class SurfacePainter {
         });
     }
 
+    /** Blocks that may be covered with sediment / replaced by ceiling material. */
     private static boolean isRock(BlockState s) {
-        return s.is(Blocks.STONE) || s.is(Blocks.DEEPSLATE);
+        return !s.isAir() && s.getFluidState().isEmpty() && !s.is(Blocks.PACKED_ICE) && !s.is(Blocks.BLUE_ICE)
+                && !s.is(Blocks.SNOW_BLOCK) && !s.is(Blocks.BEDROCK) && s.isSolid();
+    }
+
+    private static boolean isOpen(BlockState s) {
+        return s.isAir() || !s.getFluidState().isEmpty();
     }
 
     private SurfacePainter() {
@@ -109,143 +96,133 @@ public final class SurfacePainter {
 
     public static void paint(OceanTerrain terrain, OceanSettings settings, ChunkAccess chunk) {
         int sediment = settings.getInt(OceanSettings.SEDIMENT_DEPTH);
-        boolean strata = settings.getBool(OceanSettings.ROCK_STRATA);
-        int thickness = Math.max(2, settings.getInt(OceanSettings.STRATA_THICKNESS));
-        boolean blueVeins = settings.getBool(OceanSettings.BLUE_ICE_VEINS);
         SimplexNoise noise = terrain.materialNoise;
-        long strataSeed = Hashing.hash(terrain.seed, 0x57A7A);
-
         ChunkPos pos = chunk.getPos();
         int x0 = pos.getMinBlockX();
         int z0 = pos.getMinBlockZ();
-        int minY = chunk.getMinBuildHeight();
-        int waterLevel = terrain.waterLevel;
 
-        for (int lx = 0; lx < 16; lx++) {
-            for (int lz = 0; lz < 16; lz++) {
-                int wx = x0 + lx;
-                int wz = z0 + lz;
-                int top = Math.min(chunk.getMaxBuildHeight() - 1, chunk.getHeight(Heightmap.Types.WORLD_SURFACE_WG, lx, lz));
-                double iceBottom = terrain.ice ? terrain.seabed.iceBottom(wx, wz) - 3 : Double.MAX_VALUE;
-                double warp = 7.0 * noise.noise2(wx / 90.0, wz / 90.0) + 3.0 * noise.noise2(wx / 23.0 + 50, wz / 23.0);
-                double mixA = noise.noise2(wx / 11.0 + 300, wz / 11.0);
-                double mixB = noise.noise2(wx / 17.0 - 300, wz / 17.0 + 100);
+        // Per column state while walking down: 0 = rock above, 1 = water above, 2 = air above
+        int[] exposure = new int[256];
+        int[] depth = new int[256];
+        boolean[] lastWasRock = new boolean[256];
+        Arrays.fill(exposure, 2);
+        double[] mixA = new double[256];
+        double[] mixB = new double[256];
+        for (int lz = 0; lz < 16; lz++) {
+            for (int lx = 0; lx < 16; lx++) {
+                mixA[lx + lz * 16] = noise.noise2((x0 + lx) / 11.0 + 300, (z0 + lz) / 11.0);
+                mixB[lx + lz * 16] = noise.noise2((x0 + lx) / 17.0 - 300, (z0 + lz) / 17.0 + 100);
+            }
+        }
 
-                int exposure = 0; // 0 = rock above, 1 = water above, 2 = air above
-                int depth = 0;
-                int lastRockY = Integer.MIN_VALUE;
-                int cachedBand = Integer.MIN_VALUE;
-                BlockState cachedStrata = null;
-                int cachedQuart = Integer.MIN_VALUE;
-                Palette pal = DEFAULT;
-                LevelChunkSection section = null;
-                int sectionIdx = Integer.MIN_VALUE;
-
-                for (int y = top; y >= minY; y--) {
-                    int idx = chunk.getSectionIndex(y);
-                    if (idx != sectionIdx) {
-                        sectionIdx = idx;
-                        section = chunk.getSection(idx);
+        LevelChunkSection[] sections = chunk.getSections();
+        int minSection = chunk.getMinSection();
+        for (int si = sections.length - 1; si >= 0; si--) {
+            LevelChunkSection section = sections[si];
+            int baseY = (minSection + si) << 4;
+            if (section.hasOnlyAir()) {
+                Arrays.fill(exposure, 2);
+                Arrays.fill(depth, 0);
+                Arrays.fill(lastWasRock, false);
+                continue;
+            }
+            boolean hasOpen = section.maybeHas(SurfacePainter::isOpen);
+            boolean hasSolid = section.maybeHas(s -> !isOpen(s));
+            if (!hasSolid) {
+                // Completely open section: what matters below is the bottom layer of each column.
+                for (int i = 0; i < 256; i++) {
+                    BlockState bottom = section.getBlockState(i & 15, 0, i >> 4);
+                    if (lastWasRock[i]) {
+                        ceiling(chunk, terrain, x0 + (i & 15), baseY + 16, z0 + (i >> 4));
                     }
-                    if (section.hasOnlyAir()) {
-                        // whole air section: skip to its bottom
-                        exposure = 2;
-                        depth = 0;
-                        lastRockY = Integer.MIN_VALUE;
-                        y = (y & ~15);
-                        continue;
-                    }
-                    BlockState s = section.getBlockState(lx, y & 15, lz);
-                    if (s.isAir()) {
-                        exposure = 2;
-                        depth = 0;
-                        lastRockY = Integer.MIN_VALUE;
-                        continue;
-                    }
-                    if (!s.getFluidState().isEmpty()) {
-                        if (lastRockY == y + 1 && y + 1 < iceBottom) {
-                            Palette cp = paletteAt(chunk, wx, y + 1, wz);
-                            if (cp.ceiling() != null) {
-                                setAt(chunk, lx, y + 1, lz, cp.ceiling());
-                            }
+                    exposure[i] = bottom.isAir() ? 2 : 1;
+                    depth[i] = 0;
+                    lastWasRock[i] = false;
+                }
+                continue;
+            }
+            if (!hasOpen) {
+                // Completely solid section: only the first few layers below an exposed surface get sediment.
+                boolean needed = false;
+                for (int i = 0; i < 256 && !needed; i++) {
+                    needed = exposure[i] != 0 && depth[i] < sediment;
+                }
+                if (!needed) {
+                    Arrays.fill(depth, 16);
+                    Arrays.fill(exposure, 0);
+                    Arrays.fill(lastWasRock, false);
+                    continue;
+                }
+            }
+            int cachedQuartY = Integer.MIN_VALUE;
+            Palette[] pal = new Palette[256];
+            for (int ly = 15; ly >= 0; ly--) {
+                int y = baseY + ly;
+                int qy = QuartPos.fromBlock(y);
+                if (qy != cachedQuartY) {
+                    cachedQuartY = qy;
+                    Arrays.fill(pal, null);
+                }
+                for (int i = 0; i < 256; i++) {
+                    int lx = i & 15;
+                    int lz = i >> 4;
+                    BlockState s = section.getBlockState(lx, ly, lz);
+                    if (isOpen(s)) {
+                        if (lastWasRock[i]) {
+                            ceiling(chunk, terrain, x0 + lx, y + 1, z0 + lz);
                         }
-                        exposure = 1;
-                        depth = 0;
-                        lastRockY = Integer.MIN_VALUE;
+                        exposure[i] = s.isAir() ? 2 : 1;
+                        depth[i] = 0;
+                        lastWasRock[i] = false;
                         continue;
                     }
-                    if (s.is(Blocks.BEDROCK)) {
-                        exposure = 0;
-                        lastRockY = Integer.MIN_VALUE;
-                        continue;
-                    }
-                    depth++;
-                    if (y >= iceBottom) {
-                        BlockState ice;
-                        if (exposure == 2 && depth <= 2 && y >= waterLevel) {
-                            ice = SNOW_BLOCK;
-                        } else if (blueVeins && noise.noise3(wx / 21.0, y / 9.0, wz / 21.0) > 0.62) {
-                            ice = BLUE_ICE;
-                        } else {
-                            ice = PACKED_ICE;
-                        }
-                        section.setBlockState(lx, y & 15, lz, ice, false);
-                        lastRockY = Integer.MIN_VALUE;
-                        continue;
-                    }
+                    depth[i]++;
                     boolean rock = isRock(s);
-                    if (exposure != 0 && depth <= sediment && rock) {
-                        int quart = QuartPos.fromBlock(y);
-                        if (quart != cachedQuart) {
-                            cachedQuart = quart;
-                            pal = palette(chunk.getNoiseBiome(QuartPos.fromBlock(wx), quart, QuartPos.fromBlock(wz)));
+                    if (rock && exposure[i] != 0 && depth[i] <= sediment) {
+                        Palette p = pal[i];
+                        if (p == null) {
+                            p = palette(chunk.getNoiseBiome(QuartPos.fromBlock(x0 + lx), qy, QuartPos.fromBlock(z0 + lz)));
+                            pal[i] = p;
                         }
-                        BlockState floor;
-                        if (depth == 1) {
-                            floor = mixA > 0.35 ? pal.alt1() : (mixB < -0.45 ? pal.alt2() : pal.top());
-                        } else {
-                            floor = pal.sub();
-                        }
-                        if (floor != null) {
-                            section.setBlockState(lx, y & 15, lz, floor, false);
-                            lastRockY = Integer.MIN_VALUE;
+                        if (p.foreign() && exposure[i] == 2) {
+                            exposure[i] = 0;
+                            lastWasRock[i] = false;
                             continue;
                         }
-                    }
-                    if (rock) {
-                        lastRockY = y;
-                        if (strata) {
-                            int band = Math.floorDiv((int) Math.floor(y + warp), thickness);
-                            if (band != cachedBand) {
-                                cachedBand = band;
-                                long h = Hashing.hash(strataSeed, band);
-                                double roll = Hashing.unit(h);
-                                if (roll < 0.5) {
-                                    cachedStrata = null;
-                                } else {
-                                    BlockState[] table = y >= 0 ? UPPER_STRATA : LOWER_STRATA;
-                                    cachedStrata = table[(int) ((h >>> 3) % table.length)];
-                                }
-                            }
-                            if (cachedStrata != null) {
-                                section.setBlockState(lx, y & 15, lz, cachedStrata, false);
-                            }
+                        BlockState floor = depth[i] == 1
+                                ? (mixA[i] > 0.35 ? p.alt1() : (mixB[i] < -0.45 ? p.alt2() : p.top()))
+                                : p.sub();
+                        if (floor != null) {
+                            section.setBlockState(lx, ly, lz, floor, false);
                         }
-                    } else {
-                        lastRockY = Integer.MIN_VALUE;
+                        lastWasRock[i] = false;
+                        continue;
                     }
-                    exposure = 0;
+                    if (depth[i] > sediment) {
+                        exposure[i] = 0;
+                    }
+                    lastWasRock[i] = rock && depth[i] == 1;
                 }
             }
         }
     }
 
-    private static Palette paletteAt(ChunkAccess chunk, int wx, int y, int wz) {
-        return palette(chunk.getNoiseBiome(QuartPos.fromBlock(wx), QuartPos.fromBlock(y), QuartPos.fromBlock(wz)));
-    }
-
-    private static void setAt(ChunkAccess chunk, int lx, int y, int lz, BlockState state) {
+    /** Replaces the rock block at (x, y, z) - the lowest block above an open space - with the ceiling material. */
+    private static void ceiling(ChunkAccess chunk, OceanTerrain terrain, int x, int y, int z) {
+        if (y >= chunk.getMaxBuildHeight()) {
+            return;
+        }
+        if (terrain.ice && y >= terrain.seabed.iceBottom(x, z) - 3) {
+            return;
+        }
+        Palette p = palette(chunk.getNoiseBiome(QuartPos.fromBlock(x), QuartPos.fromBlock(y), QuartPos.fromBlock(z)));
+        if (p.ceiling() == null || p.foreign()) {
+            return;
+        }
         LevelChunkSection section = chunk.getSection(chunk.getSectionIndex(y));
-        section.setBlockState(lx, y & 15, lz, state, false);
+        BlockState cur = section.getBlockState(x & 15, y & 15, z & 15);
+        if (isRock(cur)) {
+            section.setBlockState(x & 15, y & 15, z & 15, p.ceiling(), false);
+        }
     }
 }

@@ -6,7 +6,7 @@ import javax.imageio.ImageIO;
 public class Regions {
     public static void main(String[] a) throws Exception {
         long seed = Long.parseLong(a[0]);
-        OceanTerrain T = OceanTerrain.get(seed, OceanSettings.defaults());
+        OceanTerrain T = OceanTerrain.get(seed, OceanSettings.defaults(), true);
         Preview.T = T;
         ProvinceMap.Sample ps = new ProvinceMap.Sample();
         for (Province p : Province.VALUES) {

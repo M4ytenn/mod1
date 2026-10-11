@@ -14,7 +14,7 @@ public class Preview {
         Map<String,String> m = new HashMap<>();
         for (int i = 2; i < args.length; i++) { String[] kv = args[i].split("=",2); m.put(kv[0], kv[1]); }
         OceanSettings s = OceanSettings.fromMap(m);
-        T = OceanTerrain.get(seed, s);
+        T = OceanTerrain.get(seed, s, true);
         long t0 = System.nanoTime();
         topDown(out + "/top.png", 0, 0, 4096, 4);
         System.out.println("top " + (System.nanoTime()-t0)/1e6 + "ms"); t0 = System.nanoTime();

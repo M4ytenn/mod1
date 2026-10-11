@@ -145,6 +145,11 @@ public final class OceanBiomeSource extends BiomeSource {
         return settings;
     }
 
+    /** Whether a biome slot resolved to at least one biome (modded entries of missing mods are dropped). */
+    public boolean hasSlot(BiomeSlot slot) {
+        return slots.containsKey(slot);
+    }
+
     @Override
     protected MapCodec<? extends BiomeSource> codec() {
         return CODEC;
@@ -161,7 +166,7 @@ public final class OceanBiomeSource extends BiomeSource {
             long seed = carrier.terrainSeed();
             OceanTerrain t = lastTerrain;
             if (t == null || t.seed != seed) {
-                t = OceanTerrain.get(seed, settings);
+                t = OceanTerrain.get(seed, settings, hasSlot(BiomeSlot.ROCK_POCKET));
                 lastTerrain = t;
             }
             return t;

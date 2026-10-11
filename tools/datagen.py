@@ -146,16 +146,9 @@ write(f"{MOD}/worldgen/noise_settings/ocean.json", {
         "temperature": [-1.0, 1.0], "humidity": [-1.0, 1.0], "continentalness": [-1.0, 1.0],
         "erosion": [-1.0, 1.0], "weirdness": [-1.0, 1.0], "depth": 0.0, "offset": 0.0
     }],
-    "surface_rule": {"type": "minecraft:sequence", "sequence": [
-        {"type": "minecraft:condition",
-         "if_true": {"type": "minecraft:vertical_gradient", "random_name": "minecraft:bedrock_floor",
-                     "true_at_and_below": {"above_bottom": 0}, "false_at_and_above": {"above_bottom": 5}},
-         "then_run": {"type": "minecraft:block", "result_state": state("bedrock")}},
-        {"type": "minecraft:condition",
-         "if_true": {"type": "minecraft:vertical_gradient", "random_name": "minecraft:deepslate",
-                     "true_at_and_below": {"absolute": 0}, "false_at_and_above": {"absolute": 8}},
-         "then_run": {"type": "minecraft:block", "result_state": state("deepslate", axis="y")}}
-    ]}
+    # Bedrock, deepslate, strata and ice are chosen by the chunk generator while filling the terrain
+    # (worldgen/Materials.java); sediment is placed by SurfacePainter.
+    "surface_rule": {"type": "minecraft:sequence", "sequence": []}
 })
 
 write(f"{MOD}/worldgen/world_preset/barotrauma_oceans.json", {

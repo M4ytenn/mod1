@@ -15,14 +15,18 @@ public final class OceanTerrain {
 
     private static final Map<String, OceanTerrain> INSTANCES = new ConcurrentHashMap<>();
 
-    public static OceanTerrain get(long seed, OceanSettings settings) {
-        String key = seed + "|" + settings.hashCode();
+    /**
+     * @param dryPockets whether rock pockets exist (only when their biome slot resolved to at least one biome,
+     *                   e.g. Alex's Caves is installed). Pockets are carved as sealed, air-filled caverns.
+     */
+    public static OceanTerrain get(long seed, OceanSettings settings, boolean dryPockets) {
+        String key = seed + "|" + dryPockets + "|" + settings.hashCode();
         OceanTerrain t = INSTANCES.get(key);
-        if (t == null || t.seed != seed || !t.settings.equals(settings)) {
+        if (t == null || t.seed != seed || t.dryPocketsRequested != dryPockets || !t.settings.equals(settings)) {
             if (INSTANCES.size() > 8) {
                 INSTANCES.clear();
             }
-            t = new OceanTerrain(seed, settings);
+            t = new OceanTerrain(seed, settings, dryPockets);
             INSTANCES.put(key, t);
         }
         return t;
@@ -54,11 +58,16 @@ public final class OceanTerrain {
     private final double holeChance;
     private final double pocketSize;
     private final double pocketChance;
-    private final boolean pocketsActive;
+    public final boolean pocketsActive;
+    /** Columns with {@link Column#pocketQ} below this may contain a dry pocket cavern. */
+    public static final double POCKET_REACH = 0.95;
+    private final boolean dryPocketsRequested;
+    private final Map<Long, double[]> pocketCache = new ConcurrentHashMap<>();
+    private static final double[] NO_POCKET = new double[0];
 
     private final ThreadLocal<Column[]> columnCache = ThreadLocal.withInitial(() -> new Column[256]);
 
-    private OceanTerrain(long seed, OceanSettings s) {
+    private OceanTerrain(long seed, OceanSettings s, boolean dryPockets) {
         this.seed = seed;
         this.settings = s;
         this.provinces = new ProvinceMap(Hashing.hash(seed, 1), s);
@@ -82,7 +91,8 @@ public final class OceanTerrain {
         this.holeChance = s.getDouble(OceanSettings.ICE_HOLE_CHANCE);
         this.pocketSize = s.getInt(OceanSettings.POCKET_SIZE);
         this.pocketChance = s.getDouble(OceanSettings.POCKET_CHANCE);
-        this.pocketsActive = pocketChance > 0 && !s.getList(OceanSettings.B_POCKETS).isEmpty();
+        this.dryPocketsRequested = dryPockets;
+        this.pocketsActive = dryPockets && pocketChance > 0 && !s.getList(OceanSettings.B_POCKETS).isEmpty();
     }
 
     // ------------------------------------------------------------------------------------------------
@@ -289,32 +299,86 @@ public final class OceanTerrain {
         return best;
     }
 
+    /** Pocket of a grid cell: {x, z, horizontal radius, centre y, vertical radius, hash} or empty. */
+    private double[] pocketOf(long i, long j) {
+        long key = (i << 32) ^ (j & 0xFFFFFFFFL);
+        double[] p = pocketCache.get(key);
+        if (p == null) {
+            if (pocketCache.size() > 20000) {
+                pocketCache.clear();
+            }
+            long h = Hashing.hash(seed, i, j, 0x90C7);
+            Hashing.Stream r = new Hashing.Stream(h);
+            if (!r.chance(pocketChance)) {
+                p = NO_POCKET;
+            } else {
+                double px = (i + 0.5 + 0.4 * r.signed()) * pocketSize;
+                double pz = (j + 0.5 + 0.4 * r.signed()) * pocketSize;
+                double rh = pocketSize * r.range(0.22, 0.32);
+                double rv = r.range(45, 90);
+                double top = Math.min(seabed.seabed(px, pz) - 90 - rv * 0.7, -150);
+                double bottom = settings.getInt(OceanSettings.NETWORK_FLOOR) + 30 + rv * 0.7;
+                double cy = top <= bottom ? (top + bottom) * 0.5 : bottom + (top - bottom) * r.next();
+                p = new double[]{px, pz, rh, cy, rv, h};
+            }
+            pocketCache.put(key, p);
+        }
+        return p;
+    }
+
     private void pocket(Column c, int x, int z) {
         long ci = (long) Math.floor(x / pocketSize);
         long cj = (long) Math.floor(z / pocketSize);
         for (long i = ci - 1; i <= ci + 1; i++) {
             for (long j = cj - 1; j <= cj + 1; j++) {
-                long h = Hashing.hash(seed, i, j, 0x90C7);
-                Hashing.Stream r = new Hashing.Stream(h);
-                if (!r.chance(pocketChance)) {
+                double[] p = pocketOf(i, j);
+                if (p.length == 0) {
                     continue;
                 }
-                double px = (i + 0.5 + 0.4 * r.signed()) * pocketSize;
-                double pz = (j + 0.5 + 0.4 * r.signed()) * pocketSize;
-                double rh = pocketSize * r.range(0.22, 0.32);
-                double dx = (x - px) / rh;
-                double dz = (z - pz) / rh;
+                double dx = (x - p[0]) / p[2];
+                double dz = (z - p[1]) / p[2];
                 double q = dx * dx + dz * dz;
                 if (q < c.pocketQ) {
                     c.pocketQ = q;
-                    double top = Math.min(c.seabed - 90, -150);
-                    double bottom = settings.getInt(OceanSettings.NETWORK_FLOOR) + 50;
-                    c.pocketCy = bottom + (top - bottom) * r.next();
-                    c.pocketRv = r.range(45, 90);
-                    c.pocketHash = h;
+                    c.pocketCy = p[3];
+                    c.pocketRv = p[4];
+                    c.pocketHash = (long) p[5];
                 }
             }
         }
+    }
+
+    /**
+     * Signed distance of the dry cavern carved inside a rock pocket (negative inside). Kept at least
+     * ~28 blocks away from every network cavity so the pocket stays sealed.
+     */
+    public double pocketSdf(Column c, double y) {
+        if (!pocketsActive || c.pocketQ >= POCKET_REACH) {
+            return 1e9;
+        }
+        double dy = (y - c.pocketCy) / (c.pocketRv * 0.7);
+        double e = Math.sqrt(c.pocketQ / 0.49 + dy * dy);
+        double sdf = (e - 1) * c.pocketRv * 0.5;
+        double floor = c.pocketCy - c.pocketRv * 0.42;
+        if (floor - y > sdf) {
+            sdf = floor - y;
+        }
+        // Stay well below the local seabed (trench walls can drop far below the seabed at the pocket centre).
+        double roof = y - (c.seabed - 40);
+        if (roof > sdf) {
+            sdf = roof;
+        }
+        if (sdf > 8) {
+            return sdf;
+        }
+        sdf += 4.0 * roughNoise.noise3(c.x / 20.0, y / 14.0, c.z / 20.0);
+        if (y >= c.carveMinY - 40 && y <= c.carveMaxY + 40) {
+            double network = carve(c, y, false);
+            if (28 - network > sdf) {
+                sdf = 28 - network;
+            }
+        }
+        return sdf;
     }
 
     // ------------------------------------------------------------------------------------------------
@@ -361,6 +425,12 @@ public final class OceanTerrain {
             double carve = carve(c, y, true);
             if (carve < s) {
                 s = carve;
+            }
+        }
+        if (pocketsActive && c.pocketQ < POCKET_REACH) {
+            double pocket = pocketSdf(c, y);
+            if (pocket < s) {
+                s = pocket;
             }
         }
         return s;
