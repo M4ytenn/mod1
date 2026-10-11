@@ -654,6 +654,90 @@ public final class TunnelNetwork {
     // Queries
     // ------------------------------------------------------------------------------------------------
 
+    /**
+     * Lower bound of the distance between an upright cylinder (centre x/z, radius r, from y0 to y1) and every
+     * cavity of the network: channels, station caverns, entrance shafts and crew tunnels. Each cavity is
+     * bounded by a box around its centre line, so the result is conservative.
+     */
+    public double clearance(double x, double z, double r, double y0, double y1) {
+        if (!enabled) {
+            return 1e9;
+        }
+        double best = 1e9;
+        long i0 = cellOf(x - r), i1 = cellOf(x + r);
+        long j0 = cellOf(z - r), j1 = cellOf(z + r);
+        for (long i = i0 - 2; i <= i1 + 1; i++) {
+            for (long j = j0 - 2; j <= j1 + 1; j++) {
+                for (int dir = DIR_EAST; dir <= DIR_SOUTH; dir++) {
+                    Tunnel t = tunnel(i, j, dir);
+                    if (t != null) {
+                        best = Math.min(best, clearance(t, x, z, r, y0, y1));
+                    }
+                }
+                if (i >= i0 - 1 && i <= i1 + 1 && j >= j0 - 1 && j <= j1 + 1) {
+                    best = Math.min(best, clearance(station(i, j), x, z, r, y0, y1));
+                }
+            }
+        }
+        return best;
+    }
+
+    private double clearance(Tunnel t, double x, double z, double r, double y0, double y1) {
+        double far = Math.max(t.minX - x, Math.max(x - t.maxX, Math.max(t.minZ - z, z - t.maxZ))) - r;
+        if (far > 64) {
+            return far;
+        }
+        double best = 1e9;
+        for (int k = 0; k < t.n - 1; k++) {
+            double dh = segmentDistance(x, z, t.px[k], t.pz[k], t.px[k + 1], t.pz[k + 1]);
+            double rad = Math.max(t.rh[k], t.rh[k + 1]) + wallMargin;
+            double rv = Math.max(t.rv[k], t.rv[k + 1]) + wallMargin;
+            double lo = Math.min(t.py[k], t.py[k + 1]) - rv;
+            double hi = Math.max(t.py[k], t.py[k + 1]) + rv;
+            best = Math.min(best, gap(dh - rad - r, lo, hi, y0, y1));
+        }
+        for (CrewTunnel ct : t.crew) {
+            best = Math.min(best, boxClearance(ct, x, z, r, y0, y1));
+        }
+        return best;
+    }
+
+    private double clearance(Station st, double x, double z, double r, double y0, double y1) {
+        double dh = Math.sqrt((x - st.x) * (x - st.x) + (z - st.z) * (z - st.z));
+        double best = gap(dh - st.maxR - wallMargin - r, st.floorY - 2, st.y + st.ry + wallMargin, y0, y1);
+        if (st.shaft != null) {
+            Shaft sh = st.shaft;
+            double d = segmentDistance(x, z, sh.x0, sh.z0, sh.x1, sh.z1);
+            best = Math.min(best, gap(d - sh.radius * 1.7 - wallMargin - r, Math.min(sh.y0, sh.y1) - 2,
+                    Math.max(sh.y0, sh.y1) + 2, y0, y1));
+        }
+        for (CrewTunnel ct : st.crew) {
+            best = Math.min(best, boxClearance(ct, x, z, r, y0, y1));
+        }
+        return best;
+    }
+
+    private static double boxClearance(CrewTunnel ct, double x, double z, double r, double y0, double y1) {
+        double dx = Math.max(0, Math.max(ct.minX - x, x - ct.maxX));
+        double dz = Math.max(0, Math.max(ct.minZ - z, z - ct.maxZ));
+        return gap(Math.sqrt(dx * dx + dz * dz) - r, ct.minY, ct.maxY, y0, y1);
+    }
+
+    /** Larger of the horizontal gap and the vertical gap between [lo, hi] and [y0, y1]. */
+    private static double gap(double horizontal, double lo, double hi, double y0, double y1) {
+        return Math.max(horizontal, Math.max(lo - y1, y0 - hi));
+    }
+
+    private static double segmentDistance(double x, double z, double ax, double az, double bx, double bz) {
+        double sx = bx - ax, sz = bz - az;
+        double l2 = sx * sx + sz * sz;
+        double s = l2 > 0 ? ((x - ax) * sx + (z - az) * sz) / l2 : 0;
+        s = s < 0 ? 0 : (s > 1 ? 1 : s);
+        double qx = ax + sx * s - x;
+        double qz = az + sz * s - z;
+        return Math.sqrt(qx * qx + qz * qz);
+    }
+
     /** Collects every channel whose bounding box contains the column (x, z). */
     public void tunnelsNear(double x, double z, List<Tunnel> out) {
         if (!enabled) {

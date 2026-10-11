@@ -305,7 +305,7 @@ public class OceanChunkGenerator extends NoiseBasedChunkGenerator {
                 BlockState open = y < waterLevel ? WATER : AIR;
                 for (int x = ax; x <= bx; x++) {
                     for (int z = az; z <= bz; z++) {
-                        if (terrain.crewSdf(ct, x + 0.5, y + 0.5, z + 0.5) < 0 && !nearPocket(terrain, x, y, z)) {
+                        if (terrain.crewSdf(ct, x + 0.5, y + 0.5, z + 0.5) < 0) {
                             BlockState cur = section.getBlockState(x & 15, y & 15, z & 15);
                             if (!cur.isAir() && cur.getFluidState().isEmpty()) {
                                 section.setBlockState(x & 15, y & 15, z & 15, open, false);
@@ -315,15 +315,6 @@ public class OceanChunkGenerator extends NoiseBasedChunkGenerator {
                 }
             }
         }
-    }
-
-    /** Whether a block is close to a dry pocket; crew tunnels stop there so the pocket stays sealed. */
-    private static boolean nearPocket(OceanTerrain terrain, int x, int y, int z) {
-        if (!terrain.pocketsActive) {
-            return false;
-        }
-        OceanTerrain.Column c = terrain.column(x & ~3, z & ~3);
-        return c.pocketQ < OceanTerrain.POCKET_REACH && terrain.pocketSdf(c, y) < 10;
     }
 
     /**

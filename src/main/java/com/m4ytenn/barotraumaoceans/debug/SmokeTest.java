@@ -7,13 +7,17 @@ import com.m4ytenn.barotraumaoceans.worldgen.core.Province;
 import com.m4ytenn.barotraumaoceans.worldgen.core.ProvinceMap;
 import com.m4ytenn.barotraumaoceans.worldgen.core.TunnelNetwork;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 
@@ -189,6 +193,13 @@ public final class SmokeTest {
                         continue;
                     }
                     BlockPos p = new BlockPos(x, y, z);
+                    int y0 = (int) (c.pocketCy - c.pocketRv);
+                    int y1 = (int) (c.pocketCy + c.pocketRv);
+                    // Which generation stage produces which blocks inside the pocket
+                    for (ChunkStatus status : new ChunkStatus[]{ChunkStatus.NOISE, ChunkStatus.SURFACE, ChunkStatus.FEATURES, ChunkStatus.FULL}) {
+                        ChunkAccess staged = level.getChunkSource().getChunk(x >> 4, z >> 4, status, true);
+                        log("rock pocket after {}: {}", status, openCensus(staged, y0, y1));
+                    }
                     long t0 = System.nanoTime();
                     for (int dx = -1; dx <= 1; dx++) {
                         for (int dz = -1; dz <= 1; dz++) {
@@ -210,12 +221,53 @@ public final class SmokeTest {
                     log("rock pocket at {} biome {}, 9 chunks in {} ms, blocks {}", p,
                             level.getBiome(p).unwrapKey().map(k -> k.location().toString()).orElse("?"),
                             (System.nanoTime() - t0) / 1_000_000, census);
+                    // The pocket must be sealed: no air next to water in the 3x3 chunks
+                    int breaches = 0;
+                    BlockPos.MutableBlockPos m = new BlockPos.MutableBlockPos();
+                    int bx0 = ((x >> 4) - 1) << 4;
+                    int bz0 = ((z >> 4) - 1) << 4;
+                    for (int yy = y0; yy <= y1; yy++) {
+                        for (int bx = bx0 + 1; bx < bx0 + 47; bx++) {
+                            for (int bz = bz0 + 1; bz < bz0 + 47; bz++) {
+                                if (!level.getBlockState(m.set(bx, yy, bz)).isAir()) {
+                                    continue;
+                                }
+                                for (Direction d : Direction.values()) {
+                                    if (level.getFluidState(m.set(bx, yy, bz).move(d)).is(FluidTags.WATER)) {
+                                        breaches++;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (breaches > 0) {
+                        fail("rock pocket is not sealed: " + breaches + " air blocks touch water");
+                    } else {
+                        log("rock pocket sealed: no air block touches water");
+                    }
                     section(level, "rock pocket", p, true, 60, 40, 2);
                     return;
                 }
             }
         }
         log("rock pocket: none found");
+    }
+
+    private static Map<String, Integer> openCensus(ChunkAccess chunk, int y0, int y1) {
+        Map<String, Integer> census = new TreeMap<>();
+        BlockPos.MutableBlockPos m = new BlockPos.MutableBlockPos();
+        for (int yy = y0; yy <= y1; yy++) {
+            for (int lx = 0; lx < 16; lx++) {
+                for (int lz = 0; lz < 16; lz++) {
+                    BlockState s = chunk.getBlockState(m.set(chunk.getPos().getMinBlockX() + lx, yy, chunk.getPos().getMinBlockZ() + lz));
+                    if (s.isAir() || !s.getFluidState().isEmpty()) {
+                        census.merge(s.getBlock().getDescriptionId().replace("block.minecraft.", ""), 1, Integer::sum);
+                    }
+                }
+            }
+        }
+        return census;
     }
 
     private static void region(ServerLevel level, OceanTerrain t, Province province) {

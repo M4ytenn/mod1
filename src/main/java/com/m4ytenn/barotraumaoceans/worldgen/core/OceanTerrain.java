@@ -61,6 +61,8 @@ public final class OceanTerrain {
     public final boolean pocketsActive;
     /** Columns with {@link Column#pocketQ} below this may contain a dry pocket cavern. */
     public static final double POCKET_REACH = 0.95;
+    /** Minimum rock between a dry pocket and any water-filled cavity. */
+    public static final double POCKET_SEAL = 24;
     private final boolean dryPocketsRequested;
     private final Map<Long, double[]> pocketCache = new ConcurrentHashMap<>();
     private static final double[] NO_POCKET = new double[0];
@@ -319,7 +321,21 @@ public final class OceanTerrain {
                 double top = Math.min(seabed.seabed(px, pz) - 90 - rv * 0.7, -150);
                 double bottom = settings.getInt(OceanSettings.NETWORK_FLOOR) + 30 + rv * 0.7;
                 double cy = top <= bottom ? (top + bottom) * 0.5 : bottom + (top - bottom) * r.next();
-                p = new double[]{px, pz, rh, cy, rv, h};
+                p = NO_POCKET;
+                // Shrink the pocket until it is sealed: at least POCKET_SEAL blocks of rock to every channel,
+                // station, shaft, crew tunnel and ravine.
+                for (double scale = 1.0; scale >= 0.5; scale -= 0.125) {
+                    double srh = rh * scale;
+                    double srv = rv * scale;
+                    double reach = srh * 0.7 + 5;
+                    double y0 = cy - srv * 0.42 - 5;
+                    double y1 = cy + srv * 0.7 + 5;
+                    if (network.clearance(px, pz, reach, y0, y1) >= POCKET_SEAL
+                            && ravines.clearance(px, pz, reach, y0, y1) >= POCKET_SEAL) {
+                        p = new double[]{px, pz, srh, cy, srv, h};
+                        break;
+                    }
+                }
             }
             pocketCache.put(key, p);
         }
@@ -349,8 +365,9 @@ public final class OceanTerrain {
     }
 
     /**
-     * Signed distance of the dry cavern carved inside a rock pocket (negative inside). Kept at least
-     * ~28 blocks away from every network cavity so the pocket stays sealed.
+     * Signed distance of the dry cavern carved inside a rock pocket (negative inside). Pockets that would come
+     * closer than {@link #POCKET_SEAL} blocks to a water-filled cavity are shrunk or dropped when they are
+     * created, so the cavern stays sealed.
      */
     public double pocketSdf(Column c, double y) {
         if (!pocketsActive || c.pocketQ >= POCKET_REACH) {
@@ -372,12 +389,6 @@ public final class OceanTerrain {
             return sdf;
         }
         sdf += 4.0 * roughNoise.noise3(c.x / 20.0, y / 14.0, c.z / 20.0);
-        if (y >= c.carveMinY - 40 && y <= c.carveMaxY + 40) {
-            double network = carve(c, y, false);
-            if (28 - network > sdf) {
-                sdf = 28 - network;
-            }
-        }
         return sdf;
     }
 

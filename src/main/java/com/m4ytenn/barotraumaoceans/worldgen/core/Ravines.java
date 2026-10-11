@@ -121,6 +121,48 @@ public final class Ravines {
         }
     }
 
+    /**
+     * Lower bound of the distance between an upright cylinder (centre x/z, radius r, from y0 to y1) and every
+     * ravine: the ravine footprint against the cylinder, or the ravine bottom against the cylinder top.
+     */
+    public double clearance(double x, double z, double r, double y0, double y1) {
+        if (!enabled) {
+            return 1e9;
+        }
+        double best = 1e9;
+        long i0 = (long) Math.floor((x - r) / spacing), i1 = (long) Math.floor((x + r) / spacing);
+        long j0 = (long) Math.floor((z - r) / spacing), j1 = (long) Math.floor((z + r) / spacing);
+        for (long i = i0 - 1; i <= i1 + 1; i++) {
+            for (long j = j0 - 1; j <= j1 + 1; j++) {
+                Ravine rv = cell(i, j);
+                if (rv == null) {
+                    continue;
+                }
+                double dx = Math.max(0, Math.max(rv.minX - x, x - rv.maxX));
+                double dz = Math.max(0, Math.max(rv.minZ - z, z - rv.maxZ));
+                double horizontal = Math.sqrt(dx * dx + dz * dz) - r;
+                if (horizontal > 64) {
+                    best = Math.min(best, horizontal);
+                    continue;
+                }
+                // Lowest point of the ravine near the cylinder
+                double bottom = 1e9;
+                int steps = Math.max(2, (int) Math.ceil(rv.length / 24));
+                for (int k = 0; k <= steps; k++) {
+                    double u = rv.length * k / steps;
+                    double px = rv.x0 + rv.ux * u;
+                    double pz = rv.z0 + rv.uz * u;
+                    if (Math.hypot(px - x, pz - z) < r + rv.halfWidth + rv.meanderAmp + 64) {
+                        bottom = Math.min(bottom, seabed.seabed(px, pz) - rv.depth);
+                    }
+                }
+                double vertical = bottom - 8 - y1;
+                best = Math.min(best, Math.max(horizontal, vertical));
+            }
+        }
+        return best;
+    }
+
     /** Fills the hit for a column; returns false if the column is outside the ravine footprint. */
     public boolean hit(Ravine rv, double x, double z, double localSeabed, RavineHit out) {
         double dx = x - rv.x0;
