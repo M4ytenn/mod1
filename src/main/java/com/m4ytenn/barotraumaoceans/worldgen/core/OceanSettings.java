@@ -312,7 +312,7 @@ public final class OceanSettings {
     // Biomes
     // ------------------------------------------------------------------------------------------------
     public static final Section BIOMES = section("biomes", "Biome Slots",
-            "Which biomes fill each part of the world. Format: \"namespace:biome=weight\". Biomes from mods that are not installed are skipped automatically, so modded entries are safe to keep. You can add any biome from any mod here.");
+            "Which biomes fill each part of the world. Format: \"namespace:biome=weight\". Entries of mods that are not installed are skipped automatically, so modded entries are safe to keep. Any biome added by a mod can be used here.");
     public static final Param B_ICE = list(BIOMES, "ice_shelf", "Ice Shelf", "The ice crust and the water right beneath it.",
             "barotrauma_oceans:ice_shelf=10");
     public static final Param B_GREAT_SEA = list(BIOMES, "great_sea", "Open Water", "Open water between the seabed and the ice.",

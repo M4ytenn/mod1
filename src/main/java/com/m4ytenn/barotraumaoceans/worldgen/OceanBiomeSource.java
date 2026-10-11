@@ -19,6 +19,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.Climate;
+import net.neoforged.fml.ModList;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -111,6 +112,12 @@ public final class OceanBiomeSource extends BiomeSource {
             ResourceLocation rl = ResourceLocation.tryParse(id);
             if (rl == null) {
                 BarotraumaOceans.LOGGER.warn("Barotrauma Oceans: invalid biome id '{}'", id);
+                continue;
+            }
+            // While data packs load, asking for an unknown biome creates a reference that must be filled
+            // later, so biomes of mods that are not installed must be skipped before looking them up.
+            String ns = rl.getNamespace();
+            if (!ns.equals("minecraft") && !ns.equals(BarotraumaOceans.MODID) && !ModList.get().isLoaded(ns)) {
                 continue;
             }
             Optional<? extends Holder<Biome>> holder = biomes.get(ResourceKey.create(Registries.BIOME, rl));

@@ -306,10 +306,11 @@ public final class TunnelNetwork {
     }
 
     private void trimCaches() {
-        if (stations.size() > 20000) {
+        // Channels keep their whole centre line in memory, so the caches are bounded.
+        if (stations.size() > 8192) {
             stations.clear();
         }
-        if (tunnels.size() > 20000) {
+        if (tunnels.size() > 6144) {
             tunnels.clear();
         }
     }
