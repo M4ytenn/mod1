@@ -168,6 +168,54 @@ public final class SmokeTest {
                 Province.HYDROTHERMAL_WASTES, Province.SPIRE_FIELDS, Province.PILLAR_FOREST}) {
             region(level, t, p);
         }
+
+        // 7. A rock pocket deep in the crust (Alex's Caves biomes live there when installed)
+        rockPocket(level, t);
+
+        log("timings: {}", com.m4ytenn.barotraumaoceans.worldgen.OceanChunkGenerator.timingReport());
+    }
+
+    private static void rockPocket(ServerLevel level, OceanTerrain t) {
+        OceanTerrain.SlotResult sr = new OceanTerrain.SlotResult();
+        for (int r = 0; r <= 3072; r += 64) {
+            for (int a = 0; a < 16; a++) {
+                int x = ((int) (r * Math.cos(a * Math.PI / 8))) & ~3;
+                int z = ((int) (r * Math.sin(a * Math.PI / 8))) & ~3;
+                OceanTerrain.Column c = t.column(x, z);
+                if (c.pocketQ < 0.15) {
+                    int y = (int) c.pocketCy;
+                    t.slot(c, y, sr);
+                    if (sr.slot != com.m4ytenn.barotraumaoceans.worldgen.core.BiomeSlot.ROCK_POCKET) {
+                        continue;
+                    }
+                    BlockPos p = new BlockPos(x, y, z);
+                    long t0 = System.nanoTime();
+                    for (int dx = -1; dx <= 1; dx++) {
+                        for (int dz = -1; dz <= 1; dz++) {
+                            level.getChunk((x >> 4) + dx, (z >> 4) + dz);
+                        }
+                    }
+                    Map<String, Integer> census = new TreeMap<>();
+                    LevelChunk chunk = level.getChunk(x >> 4, z >> 4);
+                    for (int yy = y - 40; yy <= y + 40; yy++) {
+                        for (int lx = 0; lx < 16; lx++) {
+                            for (int lz = 0; lz < 16; lz++) {
+                                BlockState s = chunk.getBlockState(new BlockPos(chunk.getPos().getMinBlockX() + lx, yy, chunk.getPos().getMinBlockZ() + lz));
+                                if (!s.is(Blocks.STONE) && !s.is(Blocks.DEEPSLATE)) {
+                                    census.merge(s.getBlock().getDescriptionId(), 1, Integer::sum);
+                                }
+                            }
+                        }
+                    }
+                    log("rock pocket at {} biome {}, 9 chunks in {} ms, blocks {}", p,
+                            level.getBiome(p).unwrapKey().map(k -> k.location().toString()).orElse("?"),
+                            (System.nanoTime() - t0) / 1_000_000, census);
+                    section(level, "rock pocket", p, true, 60, 40, 2);
+                    return;
+                }
+            }
+        }
+        log("rock pocket: none found");
     }
 
     private static void region(ServerLevel level, OceanTerrain t, Province province) {

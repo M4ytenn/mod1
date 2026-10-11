@@ -58,6 +58,13 @@ public class OceanChunkGenerator extends NoiseBasedChunkGenerator {
     private static final BlockState AIR = Blocks.AIR.defaultBlockState();
     private static final BlockState WATER = Blocks.WATER.defaultBlockState();
 
+    /** Cumulative generation timings (nanoseconds / calls), reported by the smoke test and /barotrauma info. */
+    public static final java.util.concurrent.atomic.AtomicLong FILL_NANOS = new java.util.concurrent.atomic.AtomicLong();
+    public static final java.util.concurrent.atomic.AtomicLong FILL_CALLS = new java.util.concurrent.atomic.AtomicLong();
+    public static final java.util.concurrent.atomic.AtomicLong SURFACE_NANOS = new java.util.concurrent.atomic.AtomicLong();
+    public static final java.util.concurrent.atomic.AtomicLong DECORATION_NANOS = new java.util.concurrent.atomic.AtomicLong();
+    public static final java.util.concurrent.atomic.AtomicLong BIOME_NANOS = new java.util.concurrent.atomic.AtomicLong();
+
     private final OceanSettings oceanSettings;
     private final int waterLevel;
     private volatile OceanTerrain lastTerrain;
@@ -111,7 +118,9 @@ public class OceanChunkGenerator extends NoiseBasedChunkGenerator {
 
     @Override
     public CompletableFuture<ChunkAccess> createBiomes(RandomState randomState, Blender blender, StructureManager structureManager, ChunkAccess chunk) {
+        long t0 = System.nanoTime();
         chunk.fillBiomesFromNoise(this.biomeSource, randomState.sampler());
+        BIOME_NANOS.addAndGet(System.nanoTime() - t0);
         return CompletableFuture.completedFuture(chunk);
     }
 
@@ -140,6 +149,7 @@ public class OceanChunkGenerator extends NoiseBasedChunkGenerator {
 
     @Override
     public CompletableFuture<ChunkAccess> fillFromNoise(Blender blender, RandomState randomState, StructureManager structureManager, ChunkAccess chunk) {
+        long started = System.nanoTime();
         OceanTerrain terrain = terrain(randomState);
         int minY = Math.max(genMinY(), chunk.getMinBuildHeight());
         int maxY = Math.min(genMaxY(), chunk.getMaxBuildHeight());
@@ -223,6 +233,8 @@ public class OceanChunkGenerator extends NoiseBasedChunkGenerator {
         }
         Heightmap.primeHeightmaps(chunk, EnumSet.of(Heightmap.Types.WORLD_SURFACE_WG));
         setSeabedHeightmap(chunk, Heightmap.Types.OCEAN_FLOOR_WG);
+        FILL_NANOS.addAndGet(System.nanoTime() - started);
+        FILL_CALLS.incrementAndGet();
         return CompletableFuture.completedFuture(chunk);
     }
 
@@ -378,8 +390,10 @@ public class OceanChunkGenerator extends NoiseBasedChunkGenerator {
 
     @Override
     public void buildSurface(WorldGenRegion level, StructureManager structureManager, RandomState randomState, ChunkAccess chunk) {
+        long t0 = System.nanoTime();
         super.buildSurface(level, structureManager, randomState, chunk);
         SurfacePainter.paint(terrain(randomState), oceanSettings, chunk);
+        SURFACE_NANOS.addAndGet(System.nanoTime() - t0);
     }
 
     @Override
@@ -392,6 +406,7 @@ public class OceanChunkGenerator extends NoiseBasedChunkGenerator {
 
     @Override
     public void applyBiomeDecoration(WorldGenLevel level, ChunkAccess chunk, StructureManager structureManager) {
+        long t0 = System.nanoTime();
         OceanTerrain terrain = terrain(level.getLevel().getChunkSource().randomState());
         // The OCEAN_FLOOR heightmap was just primed from the blocks (= top of the ice). Point it at the seabed
         // for the decoration pass and re-prime it afterwards.
@@ -407,6 +422,15 @@ public class OceanChunkGenerator extends NoiseBasedChunkGenerator {
             }
         }
         NetworkDecorator.decorate(level, chunk, terrain, oceanSettings);
+        DECORATION_NANOS.addAndGet(System.nanoTime() - t0);
+    }
+
+    /** Average milliseconds per chunk spent in each generation stage so far. */
+    public static String timingReport() {
+        long n = Math.max(1, FILL_CALLS.get());
+        return String.format("%d chunks: biomes %.2f ms, terrain %.2f ms, surface %.2f ms, decoration %.2f ms (per chunk)",
+                FILL_CALLS.get(), BIOME_NANOS.get() / 1e6 / n, FILL_NANOS.get() / 1e6 / n, SURFACE_NANOS.get() / 1e6 / n,
+                DECORATION_NANOS.get() / 1e6 / n);
     }
 
     @Override
