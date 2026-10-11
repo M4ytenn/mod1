@@ -1,0 +1,20 @@
+{
+  "feature": "barotrauma_oceans:kelp_small",
+  "placement": [
+    {
+      "type": "barotrauma_oceans:scaled_count",
+      "count": 2,
+      "setting": "vegetation.kelp_density"
+    },
+    {
+      "type": "minecraft:in_square"
+    },
+    {
+      "type": "minecraft:heightmap",
+      "heightmap": "OCEAN_FLOOR_WG"
+    },
+    {
+      "type": "minecraft:biome"
+    }
+  ]
+}

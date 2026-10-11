@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    "barotrauma_oceans:abyssal_ravine",
+    "barotrauma_oceans:great_channels",
+    "barotrauma_oceans:sunken_channels",
+    "barotrauma_oceans:narrow_passages",
+    "barotrauma_oceans:luminous_caverns",
+    "barotrauma_oceans:cold_caverns",
+    "barotrauma_oceans:station_hollow",
+    "barotrauma_oceans:deep_crust"
+  ]
+}

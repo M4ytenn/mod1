@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "barotrauma_oceans:hadal_trench",
+    "barotrauma_oceans:abyssal_ravine",
+    "barotrauma_oceans:the_great_sea",
+    "barotrauma_oceans:abyssal_plains",
+    "barotrauma_oceans:pillar_forest"
+  ]
+}

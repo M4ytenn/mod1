@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "barotrauma_oceans:abyssal_plains",
+    "barotrauma_oceans:monolith_reach",
+    "barotrauma_oceans:spire_fields"
+  ]
+}

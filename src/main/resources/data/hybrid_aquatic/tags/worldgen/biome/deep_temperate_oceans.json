@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "barotrauma_oceans:the_great_sea",
+    "barotrauma_oceans:abyssal_plains",
+    "barotrauma_oceans:pillar_forest",
+    "barotrauma_oceans:monolith_reach",
+    "barotrauma_oceans:europan_ridge",
+    "barotrauma_oceans:spire_fields"
+  ]
+}

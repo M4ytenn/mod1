@@ -1,0 +1,18 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "alexscaves"
+    }
+  ],
+  "type": "neoforge:add_spawns",
+  "biomes": "barotrauma_oceans:hadal_trench",
+  "spawners": [
+    {
+      "type": "alexscaves:hullbreaker",
+      "weight": 1,
+      "minCount": 1,
+      "maxCount": 1
+    }
+  ]
+}

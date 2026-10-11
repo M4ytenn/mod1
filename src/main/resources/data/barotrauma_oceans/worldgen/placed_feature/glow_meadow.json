@@ -1,0 +1,20 @@
+{
+  "feature": "barotrauma_oceans:glow_meadow",
+  "placement": [
+    {
+      "type": "barotrauma_oceans:scaled_count",
+      "count": 1,
+      "setting": "vegetation.meadow_density"
+    },
+    {
+      "type": "minecraft:in_square"
+    },
+    {
+      "type": "minecraft:heightmap",
+      "heightmap": "OCEAN_FLOOR_WG"
+    },
+    {
+      "type": "minecraft:biome"
+    }
+  ]
+}

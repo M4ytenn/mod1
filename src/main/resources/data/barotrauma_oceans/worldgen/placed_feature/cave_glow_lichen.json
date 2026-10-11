@@ -1,0 +1,20 @@
+{
+  "feature": "barotrauma_oceans:glow_lichen",
+  "placement": [
+    {
+      "type": "barotrauma_oceans:scaled_count",
+      "count": 40,
+      "setting": "vegetation.glow_lichen_density"
+    },
+    {
+      "type": "minecraft:in_square"
+    },
+    {
+      "type": "barotrauma_oceans:cavity",
+      "surface": "inside"
+    },
+    {
+      "type": "minecraft:biome"
+    }
+  ]
+}

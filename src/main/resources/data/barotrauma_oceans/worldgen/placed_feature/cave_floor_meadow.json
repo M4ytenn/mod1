@@ -1,0 +1,20 @@
+{
+  "feature": "barotrauma_oceans:cave_floor_meadow",
+  "placement": [
+    {
+      "type": "barotrauma_oceans:scaled_count",
+      "count": 3,
+      "setting": "vegetation.channel_vegetation"
+    },
+    {
+      "type": "minecraft:in_square"
+    },
+    {
+      "type": "barotrauma_oceans:cavity",
+      "surface": "floor"
+    },
+    {
+      "type": "minecraft:biome"
+    }
+  ]
+}

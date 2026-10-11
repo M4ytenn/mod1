@@ -1,0 +1,12 @@
+{
+  "type": "barotrauma_oceans:hydrothermal_vent",
+  "config": {
+    "height": {
+      "type": "minecraft:uniform",
+      "min_inclusive": 4,
+      "max_inclusive": 14
+    },
+    "upwelling_chance": 0.6,
+    "max_bubble_column": 220
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    "barotrauma_oceans:abyssal_plains",
+    "barotrauma_oceans:spire_fields",
+    "barotrauma_oceans:pillar_forest",
+    "barotrauma_oceans:monolith_reach",
+    "barotrauma_oceans:kelp_forest",
+    "barotrauma_oceans:coral_gardens",
+    "barotrauma_oceans:europan_ridge",
+    "barotrauma_oceans:hydrothermal_wastes",
+    "barotrauma_oceans:hadal_trench"
+  ]
+}

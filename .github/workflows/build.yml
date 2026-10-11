@@ -1,0 +1,57 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build
+        run: |
+          chmod +x gradlew
+          ./gradlew build --stacktrace
+
+      - name: Upload mod jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: barotrauma-oceans
+          path: build/libs/*.jar
+
+      - name: World generation smoke test
+        run: |
+          mkdir -p run-ci
+          echo "eula=true" > run-ci/eula.txt
+          printf 'level-type=barotrauma_oceans:barotrauma_oceans\nlevel-seed=12345\nonline-mode=false\nmax-tick-time=-1\nspawn-protection=0\nview-distance=4\nsimulation-distance=4\n' > run-ci/server.properties
+          set -o pipefail
+          timeout 1200 ./gradlew runCiServer --stacktrace 2>&1 | tee smoke.log || true
+          echo "================ smoke test report ================"
+          grep -E "SMOKE|BAROTRAUMA SMOKE TEST" smoke.log || true
+          echo "================ errors and warnings ================"
+          grep -nE "ERROR|Exception|Caused by|Feature order|Failed to|Unknown|Couldn't|Missing" smoke.log | grep -v "SMOKE |" | head -80 || true
+          grep -q "BAROTRAUMA SMOKE TEST: PASSED" smoke.log
+
+      - name: Upload smoke test log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-test-log
+          path: |
+            smoke.log
+            run-ci/logs/latest.log
+          if-no-files-found: ignore

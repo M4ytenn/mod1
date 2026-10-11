@@ -1,0 +1,29 @@
+{
+  "type": "barotrauma_oceans:rock_spike",
+  "config": {
+    "material": {
+      "type": "minecraft:weighted_state_provider",
+      "entries": [
+        {
+          "data": {
+            "Name": "minecraft:packed_ice"
+          },
+          "weight": 3
+        },
+        {
+          "data": {
+            "Name": "minecraft:blue_ice"
+          },
+          "weight": 1
+        }
+      ]
+    },
+    "height": {
+      "type": "minecraft:uniform",
+      "min_inclusive": 2,
+      "max_inclusive": 9
+    },
+    "max_radius": 1.8,
+    "hanging": false
+  }
+}

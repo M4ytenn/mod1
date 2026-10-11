@@ -1,0 +1,20 @@
+{
+  "feature": "barotrauma_oceans:ice_needle",
+  "placement": [
+    {
+      "type": "barotrauma_oceans:scaled_count",
+      "count": 8,
+      "setting": "vegetation.ice_stalactite_density"
+    },
+    {
+      "type": "minecraft:in_square"
+    },
+    {
+      "type": "barotrauma_oceans:cavity",
+      "surface": "floor"
+    },
+    {
+      "type": "minecraft:biome"
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "has_precipitation": false,
+  "temperature": 0.5,
+  "downfall": 0.0,
+  "effects": {
+    "fog_color": 263690,
+    "sky_color": 728378,
+    "water_color": 1714752,
+    "water_fog_color": 132362,
+    "mood_sound": {
+      "sound": "minecraft:ambient.cave",
+      "tick_delay": 6000,
+      "block_search_extent": 8,
+      "offset": 2.0
+    },
+    "music": {
+      "sound": "minecraft:music.under_water",
+      "min_delay": 12000,
+      "max_delay": 24000,
+      "replace_current_music": false
+    }
+  },
+  "spawners": {
+    "monster": [],
+    "creature": [],
+    "ambient": [],
+    "axolotls": [],
+    "underground_water_creature": [
+      {
+        "type": "minecraft:glow_squid",
+        "weight": 10,
+        "minCount": 2,
+        "maxCount": 4
+      }
+    ],
+    "water_creature": [],
+    "water_ambient": [],
+    "misc": []
+  },
+  "spawn_costs": {},
+  "carvers": {},
+  "features": [
+    [],
+    [],
+    [
+      "barotrauma_oceans:flooded_geode"
+    ],
+    [],
+    [],
+    [],
+    [
+      "barotrauma_oceans:ore_gravel",
+      "barotrauma_oceans:ore_clay",
+      "barotrauma_oceans:ore_tuff",
+      "barotrauma_oceans:ore_coal",
+      "barotrauma_oceans:ore_iron",
+      "barotrauma_oceans:ore_copper",
+      "barotrauma_oceans:ore_gold",
+      "barotrauma_oceans:ore_redstone",
+      "barotrauma_oceans:ore_lapis",
+      "barotrauma_oceans:ore_diamond",
+      "barotrauma_oceans:ore_emerald",
+      "barotrauma_oceans:ore_magma"
+    ],
+    [],
+    [],
+    [],
+    []
+  ]
+}

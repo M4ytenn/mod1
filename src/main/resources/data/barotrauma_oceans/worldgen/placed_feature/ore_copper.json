@@ -1,0 +1,28 @@
+{
+  "feature": "barotrauma_oceans:ore_copper",
+  "placement": [
+    {
+      "type": "barotrauma_oceans:scaled_count",
+      "count": 14,
+      "setting": "vegetation.ore_density"
+    },
+    {
+      "type": "minecraft:in_square"
+    },
+    {
+      "type": "minecraft:height_range",
+      "height": {
+        "type": "minecraft:trapezoid",
+        "min_inclusive": {
+          "absolute": -260
+        },
+        "max_inclusive": {
+          "absolute": 160
+        }
+      }
+    },
+    {
+      "type": "minecraft:biome"
+    }
+  ]
+}

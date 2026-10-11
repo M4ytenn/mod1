@@ -1,0 +1,36 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "alexscaves"
+    }
+  ],
+  "type": "neoforge:add_spawns",
+  "biomes": "#barotrauma_oceans:alexscaves_abyss",
+  "spawners": [
+    {
+      "type": "alexscaves:lanternfish",
+      "weight": 30,
+      "minCount": 6,
+      "maxCount": 12
+    },
+    {
+      "type": "alexscaves:tripodfish",
+      "weight": 10,
+      "minCount": 1,
+      "maxCount": 2
+    },
+    {
+      "type": "alexscaves:sea_pig",
+      "weight": 12,
+      "minCount": 2,
+      "maxCount": 4
+    },
+    {
+      "type": "alexscaves:gossamer_worm",
+      "weight": 5,
+      "minCount": 1,
+      "maxCount": 1
+    }
+  ]
+}

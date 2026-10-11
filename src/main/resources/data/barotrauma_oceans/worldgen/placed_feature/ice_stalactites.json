@@ -1,0 +1,19 @@
+{
+  "feature": "barotrauma_oceans:ice_stalactite",
+  "placement": [
+    {
+      "type": "barotrauma_oceans:scaled_count",
+      "count": 10,
+      "setting": "vegetation.ice_stalactite_density"
+    },
+    {
+      "type": "minecraft:in_square"
+    },
+    {
+      "type": "barotrauma_oceans:ice_underside"
+    },
+    {
+      "type": "minecraft:biome"
+    }
+  ]
+}

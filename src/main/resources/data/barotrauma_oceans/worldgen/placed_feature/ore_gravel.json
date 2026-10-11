@@ -1,0 +1,28 @@
+{
+  "feature": "barotrauma_oceans:ore_gravel",
+  "placement": [
+    {
+      "type": "barotrauma_oceans:scaled_count",
+      "count": 10,
+      "setting": "vegetation.ore_density"
+    },
+    {
+      "type": "minecraft:in_square"
+    },
+    {
+      "type": "minecraft:height_range",
+      "height": {
+        "type": "minecraft:uniform",
+        "min_inclusive": {
+          "absolute": -500
+        },
+        "max_inclusive": {
+          "absolute": 240
+        }
+      }
+    },
+    {
+      "type": "minecraft:biome"
+    }
+  ]
+}

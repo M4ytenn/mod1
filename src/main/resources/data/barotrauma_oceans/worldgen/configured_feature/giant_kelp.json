@@ -1,0 +1,16 @@
+{
+  "type": "barotrauma_oceans:giant_kelp",
+  "config": {
+    "stalks": {
+      "type": "minecraft:uniform",
+      "min_inclusive": 6,
+      "max_inclusive": 14
+    },
+    "spread": 7,
+    "height": {
+      "type": "minecraft:uniform",
+      "min_inclusive": 14,
+      "max_inclusive": 64
+    }
+  }
+}

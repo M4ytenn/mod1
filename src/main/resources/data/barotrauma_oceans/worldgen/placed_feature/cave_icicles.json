@@ -1,0 +1,20 @@
+{
+  "feature": "barotrauma_oceans:icicle",
+  "placement": [
+    {
+      "type": "barotrauma_oceans:scaled_count",
+      "count": 10,
+      "setting": "vegetation.ice_stalactite_density"
+    },
+    {
+      "type": "minecraft:in_square"
+    },
+    {
+      "type": "barotrauma_oceans:cavity",
+      "surface": "ceiling"
+    },
+    {
+      "type": "minecraft:biome"
+    }
+  ]
+}

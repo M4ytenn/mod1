@@ -1,0 +1,28 @@
+{
+  "feature": "barotrauma_oceans:ore_iron",
+  "placement": [
+    {
+      "type": "barotrauma_oceans:scaled_count",
+      "count": 22,
+      "setting": "vegetation.ore_density"
+    },
+    {
+      "type": "minecraft:in_square"
+    },
+    {
+      "type": "minecraft:height_range",
+      "height": {
+        "type": "minecraft:trapezoid",
+        "min_inclusive": {
+          "absolute": -500
+        },
+        "max_inclusive": {
+          "absolute": 120
+        }
+      }
+    },
+    {
+      "type": "minecraft:biome"
+    }
+  ]
+}

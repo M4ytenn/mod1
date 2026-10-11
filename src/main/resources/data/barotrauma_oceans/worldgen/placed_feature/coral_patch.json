@@ -1,0 +1,20 @@
+{
+  "feature": "minecraft:warm_ocean_vegetation",
+  "placement": [
+    {
+      "type": "barotrauma_oceans:scaled_count",
+      "count": 5,
+      "setting": "vegetation.coral_density"
+    },
+    {
+      "type": "minecraft:in_square"
+    },
+    {
+      "type": "minecraft:heightmap",
+      "heightmap": "OCEAN_FLOOR_WG"
+    },
+    {
+      "type": "minecraft:biome"
+    }
+  ]
+}

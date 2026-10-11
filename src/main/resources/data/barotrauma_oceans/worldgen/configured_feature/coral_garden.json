@@ -1,0 +1,12 @@
+{
+  "type": "barotrauma_oceans:seabed_meadow",
+  "config": {
+    "style": "coral",
+    "radius": {
+      "type": "minecraft:uniform",
+      "min_inclusive": 4,
+      "max_inclusive": 9
+    },
+    "density": 0.7
+  }
+}

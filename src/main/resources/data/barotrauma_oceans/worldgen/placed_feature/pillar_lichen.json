@@ -1,0 +1,28 @@
+{
+  "feature": "barotrauma_oceans:glow_lichen",
+  "placement": [
+    {
+      "type": "barotrauma_oceans:scaled_count",
+      "count": 48,
+      "setting": "vegetation.glow_lichen_density"
+    },
+    {
+      "type": "minecraft:in_square"
+    },
+    {
+      "type": "minecraft:height_range",
+      "height": {
+        "type": "minecraft:uniform",
+        "min_inclusive": {
+          "absolute": -240
+        },
+        "max_inclusive": {
+          "absolute": 236
+        }
+      }
+    },
+    {
+      "type": "minecraft:biome"
+    }
+  ]
+}
