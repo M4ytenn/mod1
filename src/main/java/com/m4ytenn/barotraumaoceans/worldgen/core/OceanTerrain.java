@@ -539,6 +539,18 @@ public final class OceanTerrain {
     }
 
     private boolean classifyCavity(Column c, double y, SlotResult out) {
+        // Station caverns win over the channels that run into them.
+        for (StationHit sh : c.stationHits) {
+            TunnelNetwork.Station st = sh.station;
+            if (sh.q < 1.15 && y >= st.floorY - 6) {
+                double e = Math.sqrt(sh.q + sq((y - st.y) / st.ry));
+                if (e < 1.08) {
+                    out.slot = BiomeSlot.STATION;
+                    out.variant = st.hash;
+                    return true;
+                }
+            }
+        }
         double best = 3.0;
         BiomeSlot slot = null;
         long variant = 0;

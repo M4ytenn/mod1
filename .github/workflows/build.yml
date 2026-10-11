@@ -55,3 +55,36 @@ jobs:
             smoke.log
             run-ci/logs/latest.log
           if-no-files-found: ignore
+
+  compat:
+    # Same smoke test with Hybrid Aquatic and Alex's Caves installed (downloaded from Modrinth).
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    continue-on-error: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Download compatibility mods
+        run: python3 .github/scripts/fetch_compat_mods.py run-ci/mods hybrid-aquatic alexs-caves && ls -la run-ci/mods
+
+      - name: World generation smoke test with compat mods
+        run: |
+          chmod +x gradlew
+          echo "eula=true" > run-ci/eula.txt
+          printf 'level-type=barotrauma_oceans:barotrauma_oceans\nlevel-seed=12345\nonline-mode=false\nmax-tick-time=-1\nspawn-protection=0\nview-distance=4\nsimulation-distance=4\n' > run-ci/server.properties
+          timeout 1500 ./gradlew runCiServer --stacktrace 2>&1 | tee smoke.log || true
+          echo "================ smoke test report ================"
+          grep -E "SMOKE|BAROTRAUMA SMOKE TEST|\[compat\]" smoke.log || true
+          echo "================ errors and warnings ================"
+          grep -nE "ERROR|Exception|Caused by|Feature order|Failed to|Couldn't|Missing" smoke.log | grep -v "SMOKE |" | head -80 || true
+          grep -q "BAROTRAUMA SMOKE TEST: PASSED" smoke.log

@@ -3,6 +3,8 @@ package com.m4ytenn.barotraumaoceans.debug;
 import com.m4ytenn.barotraumaoceans.BarotraumaOceans;
 import com.m4ytenn.barotraumaoceans.worldgen.TerrainAccess;
 import com.m4ytenn.barotraumaoceans.worldgen.core.OceanTerrain;
+import com.m4ytenn.barotraumaoceans.worldgen.core.Province;
+import com.m4ytenn.barotraumaoceans.worldgen.core.ProvinceMap;
 import com.m4ytenn.barotraumaoceans.worldgen.core.TunnelNetwork;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -150,6 +152,73 @@ public final class SmokeTest {
         section(level, "station cross-section (X)", new BlockPos((int) st.x, (int) st.y, (int) st.z), true, 110, 70, 2);
         section(level, "seabed and ice above the station (X)", new BlockPos((int) st.x, (int) ((t.seabed.seabed(st.x, st.z) + 240) / 2), (int) st.z), true, 120, 180, 3);
         section(level, "spawn pocket (X)", spawn, true, 16, 14, 1);
+
+        // 5. Biomes offered by the biome source (shows which modded biomes were picked up)
+        List<String> foreign = new ArrayList<>();
+        for (Holder<Biome> h : level.getChunkSource().getGenerator().getBiomeSource().possibleBiomes()) {
+            String id = h.unwrapKey().map(k -> k.location().toString()).orElse("?");
+            if (!id.startsWith(BarotraumaOceans.MODID + ":")) {
+                foreign.add(id);
+            }
+        }
+        log("biome source offers {} biomes, from other mods: {}", level.getChunkSource().getGenerator().getBiomeSource().possibleBiomes().size(), foreign);
+
+        // 6. A few seabed regions
+        for (Province p : new Province[]{Province.HADAL_TRENCH, Province.CORAL_GARDENS, Province.KELP_FOREST,
+                Province.HYDROTHERMAL_WASTES, Province.SPIRE_FIELDS, Province.PILLAR_FOREST}) {
+            region(level, t, p);
+        }
+    }
+
+    private static void region(ServerLevel level, OceanTerrain t, Province province) {
+        ProvinceMap.Sample ps = new ProvinceMap.Sample();
+        BlockPos found = null;
+        search:
+        for (int r = 0; r <= 4096; r += 96) {
+            for (int a = 0; a < 24; a++) {
+                int x = (int) (r * Math.cos(a * Math.PI / 12));
+                int z = (int) (r * Math.sin(a * Math.PI / 12));
+                t.provinces.sample(x, z, ps);
+                if (ps.weight(province) > 0.995) {
+                    found = new BlockPos(x, 0, z);
+                    break search;
+                }
+            }
+        }
+        if (found == null) {
+            log("region {}: none within 4096 blocks", province);
+            return;
+        }
+        long t0 = System.nanoTime();
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dz = -1; dz <= 1; dz++) {
+                level.getChunk((found.getX() >> 4) + dx, (found.getZ() >> 4) + dz);
+            }
+        }
+        long ms = (System.nanoTime() - t0) / 1_000_000;
+        int bed = (int) Math.round(t.seabed.seabed(found.getX(), found.getZ()));
+        Map<String, Integer> census = new TreeMap<>();
+        Map<String, Integer> biomes = new TreeMap<>();
+        LevelChunk chunk = level.getChunk(found.getX() >> 4, found.getZ() >> 4);
+        for (int y = bed - 30; y < bed + 140; y++) {
+            for (int x = 0; x < 16; x++) {
+                for (int z = 0; z < 16; z++) {
+                    BlockPos p = new BlockPos(chunk.getPos().getMinBlockX() + x, y, chunk.getPos().getMinBlockZ() + z);
+                    BlockState s = chunk.getBlockState(p);
+                    if (!s.is(Blocks.WATER) && !s.is(Blocks.STONE) && !s.is(Blocks.DEEPSLATE)) {
+                        census.merge(s.getBlock().getDescriptionId().replace("block.minecraft.", ""), 1, Integer::sum);
+                    }
+                }
+            }
+        }
+        for (int x = 0; x < 16; x += 4) {
+            for (int z = 0; z < 16; z += 4) {
+                BlockPos p = new BlockPos(chunk.getPos().getMinBlockX() + x, bed + 3, chunk.getPos().getMinBlockZ() + z);
+                biomes.merge(level.getBiome(p).unwrapKey().map(k -> k.location().toString()).orElse("?"), 1, Integer::sum);
+            }
+        }
+        log("region {} at {} (seabed ~{}), 9 chunks in {} ms, seabed biomes {}, blocks {}", province, found, bed, ms, biomes, census);
+        section(level, "region " + province, new BlockPos(found.getX(), bed + 40, found.getZ()), true, 60, 60, 2);
     }
 
     private static char glyph(BlockState s) {
@@ -162,6 +231,9 @@ public final class SmokeTest {
         if (s.is(Blocks.GRAVEL)) return 'g';
         if (s.is(Blocks.MUD) || s.is(Blocks.CLAY)) return 'm';
         if (s.is(Blocks.KELP) || s.is(Blocks.KELP_PLANT) || s.is(Blocks.SEAGRASS) || s.is(Blocks.TALL_SEAGRASS)) return '"';
+        if (s.is(Blocks.MAGMA_BLOCK) || s.is(Blocks.SOUL_SAND)) return 'v';
+        if (s.is(Blocks.BASALT) || s.is(Blocks.BLACKSTONE)) return 'b';
+        if (s.getBlock().getDescriptionId().contains("coral")) return 'c';
         if (s.is(Blocks.LAVA)) return 'L';
         if (s.is(Blocks.BEDROCK)) return '=';
         if (!s.getFluidState().isEmpty()) return ',';
