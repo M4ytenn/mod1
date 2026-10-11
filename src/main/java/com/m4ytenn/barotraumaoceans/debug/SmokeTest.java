@@ -181,12 +181,15 @@ public final class SmokeTest {
 
     private static void rockPocket(ServerLevel level, OceanTerrain t) {
         OceanTerrain.SlotResult sr = new OceanTerrain.SlotResult();
-        for (int r = 0; r <= 3072; r += 64) {
-            for (int a = 0; a < 16; a++) {
-                int x = ((int) (r * Math.cos(a * Math.PI / 8))) & ~3;
-                int z = ((int) (r * Math.sin(a * Math.PI / 8))) & ~3;
+        // Square rings around the origin, every 32 blocks
+        for (int r = 0; r <= 3072; r += 32) {
+            for (int a = 0; a < Math.max(1, 8 * r / 32); a++) {
+                int side = a / Math.max(1, 2 * r / 32);
+                int along = -r + (a % Math.max(1, 2 * r / 32)) * 32;
+                int x = side == 0 ? along : side == 1 ? r : side == 2 ? -along : -r;
+                int z = side == 0 ? -r : side == 1 ? along : side == 2 ? r : -along;
                 OceanTerrain.Column c = t.column(x, z);
-                if (c.pocketQ < 0.15) {
+                if (c.pocketQ < 0.1) {
                     int y = (int) c.pocketCy;
                     t.slot(c, y, sr);
                     if (sr.slot != com.m4ytenn.barotraumaoceans.worldgen.core.BiomeSlot.ROCK_POCKET) {
