@@ -134,7 +134,10 @@ write(f"{MOD}/worldgen/noise_settings/ocean.json", {
         "depth": 0.0,
         "ridges": 0.0,
         "initial_density_without_jaggedness": 0.0,
-        "final_density": -1.0,
+        # Unused (the generator fills terrain itself), but given a wide value range so that mods which wrap
+        # the overworld final density (e.g. Hybrid Aquatic trenches) do not log warnings for every chunk.
+        "final_density": {"type": "minecraft:y_clamped_gradient", "from_y": MIN_Y, "to_y": MIN_Y + HEIGHT,
+                          "from_value": 1.0, "to_value": -1.0},
         "vein_toggle": 0.0,
         "vein_ridged": 0.0,
         "vein_gap": 0.0

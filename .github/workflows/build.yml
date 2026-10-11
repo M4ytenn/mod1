@@ -75,7 +75,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Download compatibility mods
-        run: python3 .github/scripts/fetch_compat_mods.py run-ci/mods hybrid-aquatic alexs-caves && ls -la run-ci/mods
+        run: python3 .github/scripts/fetch_compat_mods.py run-ci/mods hybrid-aquatic "alexs-caves|alexs-caves-neo|alexs-caves-continued|alexscaves" && ls -la run-ci/mods
 
       - name: World generation smoke test with compat mods
         run: |

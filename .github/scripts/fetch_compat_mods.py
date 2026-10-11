@@ -4,6 +4,7 @@ CI helper: downloads optional compatibility mods (and their required dependencie
 from Modrinth into a mods folder, so the smoke test can run with them installed.
 
 usage: fetch_compat_mods.py <mods_dir> <slug> [<slug> ...]
+A slug may list alternatives separated by "|"; the first one that has a NeoForge 1.21.1 version is used.
 Mods that cannot be found are reported and skipped.
 """
 import json
@@ -33,7 +34,19 @@ def latest_version(project):
 def main():
     out = sys.argv[1]
     os.makedirs(out, exist_ok=True)
-    todo = list(sys.argv[2:])
+    todo = []
+    for arg in sys.argv[2:]:
+        chosen = None
+        for alt in arg.split("|"):
+            try:
+                if latest_version(alt) is not None:
+                    chosen = alt
+                    break
+            except Exception as e:  # noqa: BLE001
+                print(f"[compat] {alt}: lookup failed ({e})")
+            print(f"[compat] {alt}: no NeoForge 1.21.1 version")
+        if chosen:
+            todo.append(chosen)
     done = set()
     while todo:
         project = todo.pop(0)
