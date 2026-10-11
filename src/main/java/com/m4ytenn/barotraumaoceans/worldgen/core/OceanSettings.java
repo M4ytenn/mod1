@@ -347,7 +347,7 @@ public final class OceanSettings {
             "barotrauma_oceans:station_hollow=10");
     public static final Param B_CRUST = list(BIOMES, "deep_crust", "Deep Crust", "Biomes of solid rock between the caves.",
             "barotrauma_oceans:deep_crust=10");
-    public static final Param B_POCKETS = list(BIOMES, "rock_pockets", "Rock Pockets", "Rare biome pockets deep inside the crust, away from the channels. Ideal for modded cave biomes (Alex's Caves generates its caves wherever its biomes appear). Empty = disabled.",
+    public static final Param B_POCKETS = list(BIOMES, "rock_pockets", "Rock Pockets", "Biomes of the rock pockets: rare sealed, air-filled caverns deep inside the crust, away from the channels. Made for modded cave biomes such as Alex's Caves. Biomes of missing mods are skipped; when none is left (or the list is empty) there are no pockets.",
             "alexscaves:magnetic_caves=3", "alexscaves:primordial_caves=3", "alexscaves:toxic_caves=2", "alexscaves:forlorn_hollows=2", "alexscaves:candy_cavity=1");
     public static final Param POCKET_SIZE = i(BIOMES, "rock_pocket_size", "Rock Pocket Size", 320, 64, 2048, "Grid size used to place rock pockets.");
     public static final Param POCKET_CHANCE = d(BIOMES, "rock_pocket_chance", "Rock Pocket Chance", 0.2, 0.0, 1.0, "Chance per grid cell for a rock pocket.");

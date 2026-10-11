@@ -54,11 +54,13 @@ every depth, guardians in Monolith Reach and drowned in some areas.
 ### Compatibility
 * **Alex's Caves** (optional; the original and the *Alex's Caves Continued* NeoForge port both work)
   * The Abyssal Chasm biome appears in Hadal Trench regions.
-  * Magnetic Caves, Primordial Caves, Toxic Caves, Forlorn Hollows and Candy Cavity appear as rare **rock
-    pockets**: sealed, dry caverns (about 150 blocks across) deep in the crust, at least 28 blocks away from any
-    channel or station. Alex's Caves only builds its own cave structures near Y −48..20, so this mod carves
-    the caverns itself. Its mobs, decoration and surface blocks still appear there. Without Alex's Caves
-    (or with an empty `rock_pockets` biome list) there are no rock pockets.
+  * Magnetic Caves, Primordial Caves, Toxic Caves, Forlorn Hollows and Candy Cavity appear as **rock
+    pockets**: sealed, air-filled caverns up to about 150 blocks across, deep in the crust. There is about one
+    every 800 × 800 blocks. Each has at least 24 blocks of rock between it and any channel, station, shaft,
+    crew tunnel or ravine, so it never floods. Alex's Caves only builds its own cave structures near
+    Y −48..20, so this mod carves the caverns itself; Alex's Caves then fills them with its biome features
+    (for example amber lights and archaic vines in Primordial Caves) and mobs. Without Alex's Caves, or with
+    an empty `biomes.rock_pockets` list, there are no rock pockets.
   * Lanternfish, tripodfish, sea pigs, gossamer worms, Deep Ones and the occasional Hullbreaker spawn in the
     abyssal biomes of this mod. Black vents, whale falls, tube worms and anemones decorate them.
 * **Hybrid Aquatic** (optional)
