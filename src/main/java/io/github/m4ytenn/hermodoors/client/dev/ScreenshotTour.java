@@ -22,6 +22,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.tutorial.TutorialSteps;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
@@ -43,6 +44,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import org.lwjgl.glfw.GLFW;
 
 /**
  * Development aid, only active with {@code -Dhermodoors.tour=true} (the {@code runTourClient} task): creates a
@@ -124,6 +126,7 @@ public final class ScreenshotTour {
         worldRequested = true;
         log("creating flat world");
         mc.options.onboardAccessibility = false;
+        mc.options.tutorialStep = TutorialSteps.NONE;
         LevelSettings settings = new LevelSettings(WORLD, GameType.CREATIVE, false, Difficulty.PEACEFUL, true, new GameRules(), WorldDataConfiguration.DEFAULT);
         mc.createWorldOpenFlows().createFreshLevel(WORLD, settings, new WorldOptions(1974L, false, false),
                 registries -> registries.registryOrThrow(Registries.WORLD_PRESET).getHolderOrThrow(WorldPresets.FLAT).value().createWorldDimensions(),
@@ -303,6 +306,8 @@ public final class ScreenshotTour {
     }
 
     private void shot(String name) {
+        // Park the real cursor in a corner so no tooltip covers the screen being photographed.
+        GLFW.glfwSetCursorPos(mc.getWindow().getWindow(), 2, 2);
         Screenshot.grab(mc.gameDirectory, name + ".png", mc.getMainRenderTarget(), message -> log(message.getString()));
     }
 

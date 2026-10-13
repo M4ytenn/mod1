@@ -97,8 +97,14 @@ public class DoorRenderer implements BlockEntityRenderer<HermoDoorBlockEntity> {
         // Leaf slab.
         p.leaf(leaf, Dzg.FRONT, Dzg.BACK, Dzg.EDGE_V, Dzg.EDGE_H);
 
-        // Rubber seal peeking out round the back edge.
-        p.box(leaf[0] + 0.5f, leaf[1] + 0.5f, leaf[5], leaf[3] - 0.5f, leaf[4] - 0.5f, leaf[5] + 0.5f, Dzg.uv(Dzg.DARK, 0, 8, 8), false);
+        // Rubber seal: a thin black rim round the back edge of the leaf.
+        int[] seal = Dzg.uv(Dzg.DARK, 0, 8, 8);
+        float sd0 = leaf[5];
+        float sd1 = leaf[5] + 0.6f;
+        p.box(leaf[0] + 0.4f, leaf[1] + 0.4f, sd0, leaf[3] - 0.4f, leaf[1] + 1.2f, sd1, seal, false);
+        p.box(leaf[0] + 0.4f, leaf[4] - 1.2f, sd0, leaf[3] - 0.4f, leaf[4] - 0.4f, sd1, seal, false);
+        p.box(leaf[0] + 0.4f, leaf[1] + 1.2f, sd0, leaf[0] + 1.2f, leaf[4] - 1.2f, sd1, seal, false);
+        p.box(leaf[3] - 1.2f, leaf[1] + 1.2f, sd0, leaf[3] - 0.4f, leaf[4] - 1.2f, sd1, seal, false);
 
         // Handwheel on its stub shaft. While the door moves it spins as if someone were cranking it.
         float wheelX = (leaf[0] + leaf[3]) / 2f;

@@ -76,18 +76,23 @@ jobs:
           python3 - <<'PY'
           import base64, glob, io, os
           from PIL import Image
-          for path in sorted(glob.glob('run/screenshots/*.png')):
+          gui_words = ('passport', 'power', 'pump', 'clamps', 'wheel')
+          paths = sorted(glob.glob('run/screenshots/*.png'))
+          # World shots first and small, GUI shots last: log readers that only keep the tail still get the GUI.
+          paths = [p for p in paths if not any(k in p for k in gui_words)] + [p for p in paths if any(k in p for k in gui_words)]
+          for path in paths:
               name = os.path.basename(path)
               im = Image.open(path).convert('RGB')
               out = io.BytesIO()
-              if any(k in name for k in ('passport', 'power', 'pump', 'clamps', 'wheel')):
-                  # GUI shots: undo the integer GUI scale (3 at 1280x720) and keep the middle.
+              if any(k in name for k in gui_words):
+                  # GUI shots: undo the integer GUI scale (3 at 1280x720) and keep the middle, palette PNG.
                   w3, h3 = im.width // 3 * 3, im.height // 3 * 3
                   small = im.crop((0, 0, w3, h3)).resize((w3 // 3, h3 // 3), Image.NEAREST)
                   cx, cy = small.width // 2, small.height // 2
-                  small.crop((cx - 140, cy - 100, cx + 140, cy + 100)).save(out, 'PNG', optimize=True)
+                  small = small.crop((cx - 140, cy - 100, cx + 140, cy + 100))
+                  small.quantize(colors=255, method=Image.Quantize.MEDIANCUT).save(out, 'PNG', optimize=True)
               else:
-                  im.resize((640, 360), Image.LANCZOS).save(out, 'JPEG', quality=82)
+                  im.resize((480, 270), Image.LANCZOS).save(out, 'JPEG', quality=70)
               data = base64.b64encode(out.getvalue()).decode()
               print(f'TOURFILE {name} {len(data)}')
               for i in range(0, len(data), 76):
