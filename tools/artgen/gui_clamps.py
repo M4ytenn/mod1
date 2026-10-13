@@ -156,7 +156,8 @@ def build():
         x, y = r.randrange(sx0 + 4, sx1 - 10), r.randrange(sy0 + 3, sy1 - 3)
         for k in range(r.randrange(5, 14)):
             cv.set(x + k, y + r.randrange(-1, 2), mix(SLATE[2], CHALK, 0.18))
-    font.draw_text(cv, 124, 117, 'УДАРЫ:', mix(CHALK, SLATE[2], 0.25))
+    # the tally of blows still needed is chalked on in game, right after this label (ClampsView.TALLY_X)
+    font.draw_text(cv, 69, 119, 'УДАРЫ:', mix(CHALK, SLATE[2], 0.25))
 
     # --- sprites
     # sledgehammer raised (head top right) and striking (head bottom left)

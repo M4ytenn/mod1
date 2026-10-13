@@ -1,14 +1,21 @@
-"""Rough composites of the in-game screens, for reviewing the art outside the game (not shipped)."""
+"""Rough composites of the in-game screens, for reviewing the art outside the game (not shipped).
+    python3 tools/artgen/mock.py <output prefix>     # writes <prefix>_power.png, _pump, _clamps, _wheel, _passport
+The passport mock-up stands in DejaVu Sans for Minecraft's font."""
 import math
+import os
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 import font
+import gui_clamps
 import gui_panel
+import gui_passport
 import gui_power
+import gui_pump
+import gui_wheel
 from common import Canvas, rgb, mix
 from palette import *
-
-OUT = sys.argv[1]
 
 
 def blit(dst, src, x, y, u, v, w, h):
@@ -84,20 +91,6 @@ def power_mock():
     return cv
 
 
-if __name__ == '__main__':
-    cv = power_mock()
-    bg = Canvas(276, 204, (24, 24, 28, 255))
-    bg.paste(cv, 10, 10)
-    bg.img.resize((276 * 3, 204 * 3), 0).save(OUT)
-
-
-import gui_pump, gui_clamps, gui_wheel, gui_passport
-
-
-def capsule(cv, x0, y0, x1, y1, r, base, light, dark):
-    cv.capsule(x0, y0, x1, y1, r, base, light, dark)
-
-
 def pump_mock():
     cv, panel = cabinet([('ПОДАЧА', 'ПИТАНИЯ'), ('ДАВЛЕНИЕ', 'ГИДРАВЛИКИ'), ('КЛИНОВЫЕ', 'ЗАТВОРЫ'), ('ШТУРВАЛ', 'РИГЕЛИ')], [20, 30, 0, 0])
     sheet = gui_pump.build()
@@ -148,8 +141,8 @@ def clamps_mock():
     blit(cv, sheet, hub[0] - 7, hub[1] - 7, 176, 48, 14, 14)
     blit(cv, sheet, ox + 130, oy + 64, 168, 0, 30, 26)
     for i in range(3):
-        tx = ox + 70 + i * 6
-        cv.line(tx + (i % 2), oy + 118, tx, oy + 130, CHALK)
+        tx = ox + 98 + i * 6
+        cv.line(tx + (i % 2), oy + 115, tx, oy + 127, CHALK)
     font.draw_text(cv, ox + 70, oy + 137, 'ЗАТВОР 3/5', CHALK)
     return cv
 
@@ -189,7 +182,7 @@ def passport_mock():
     fb = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 11)
     d.text((116, 9), 'ПАСПОРТ', font=fb, fill=ink, anchor='mt')
     d.text((116, 24), 'дверь защитно-герметическая', font=f, fill=ink, anchor='mt')
-    for i, (l, v) in enumerate([('Изделие:', 'ДЗГ-2'), ('Заводской №:', '0417'), ('Год выпуска:', '1974'), ('Ответственный:', 'm4ytenn')]):
+    for i, (l, v) in enumerate([('Изделие:', 'ДЗГ-2'), ('Заводской №:', '0417'), ('Год выпуска:', '1974'), ('Установил:', 'm4ytenn')]):
         d.text((20, 35 + i * 9), l, font=f, fill=ink)
         d.text((96, 35 + i * 9), v, font=f, fill=(42, 39, 64, 255))
     d.text((18, 76), '1. Порядок вскрытия', font=f, fill=ink)
@@ -209,7 +202,7 @@ def passport_mock():
     blit(cv, sheet, 44 - 22, 157, 0, 197, 44, 13)
     d.text((18, 169), 'Списать изделие', font=f, fill=(163, 41, 31, 255))
     blit(cv, sheet, 166, 124, 48, 184, 52, 52)
-    d.text((222, 2), 'Заполнить при установке!', font=f, fill=(163, 41, 31, 255), anchor='rt')
+    d.text((222, 2), 'Заполнить!', font=f, fill=(163, 41, 31, 255), anchor='rt')
     cv.px = cv.img.load()
     return cv
 
@@ -220,3 +213,7 @@ def save_all(prefix):
         bg = Canvas(cv.w + 20, cv.h + 20, (24, 24, 28, 255))
         bg.img.alpha_composite(cv.img, (10, 10))
         bg.img.resize((bg.w * 3, bg.h * 3), 0).save(f'{prefix}_{name}.png')
+
+
+if __name__ == '__main__':
+    save_all(sys.argv[1])

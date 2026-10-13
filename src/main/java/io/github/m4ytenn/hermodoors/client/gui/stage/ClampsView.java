@@ -32,8 +32,8 @@ public class ClampsView extends StageView {
     private static final float LEVER_LEN = 66;
     private static final float SWING = 30f;
     private static final float SCALE_R = 74f;
-    private static final int TALLY_X = 70;
-    private static final int TALLY_Y = 118;
+    private static final int TALLY_X = 98;
+    private static final int TALLY_Y = 115;
 
     // stage_clamps.png sprites
     private static final int HAMMER_UP_U = 168;
