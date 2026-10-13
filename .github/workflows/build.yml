@@ -78,7 +78,7 @@ jobs:
           from PIL import Image
           gui_words = ('passport', 'power', 'pump', 'clamps', 'wheel')
           paths = sorted(glob.glob('run/screenshots/*.png'))
-          # World shots first and small, GUI shots last: log readers that only keep the tail still get the GUI.
+          # World shots first and small, GUI shots last.
           paths = [p for p in paths if not any(k in p for k in gui_words)] + [p for p in paths if any(k in p for k in gui_words)]
           for path in paths:
               name = os.path.basename(path)
@@ -95,7 +95,8 @@ jobs:
                   im.resize((480, 270), Image.LANCZOS).save(out, 'JPEG', quality=70)
               data = base64.b64encode(out.getvalue()).decode()
               print(f'TOURFILE {name} {len(data)}')
-              for i in range(0, len(data), 76):
-                  print(data[i:i + 76])
+              # Long lines: log readers that keep only the last few thousand lines still get every shot.
+              for i in range(0, len(data), 2000):
+                  print(data[i:i + 2000])
               print('TOUREND')
           PY
