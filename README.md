@@ -45,7 +45,7 @@ Once every step is done the seal hisses and the door opens. **It stays unlocked*
 * No mixins and no coremods; standard NeoForge registries, menus and payloads only.
 * Recipes use common `c:` tags, so iron from other mods works.
 * Tagged `c:relocation_not_supported` and `create:non_movable`, so contraption and relocation mods leave the doors alone; machines and fake players can't run a locked panel but can open unlocked doors.
-* Works with Sodium/Embeddium/Iris style renderers: the moving leaf is an ordinary block entity renderer.
+* Nothing special for Sodium/Embeddium/Iris style renderers to break: the frame is an ordinary block model and the moving leaf an ordinary block entity renderer.
 
 ## Recipes
 
@@ -75,9 +75,10 @@ Requires JDK 21.
 ./gradlew runClient          # dev client; runClient2 starts a second one for multiplayer tests
 ./gradlew runServer
 ./gradlew runGameTestServer  # server-side tests: placement, removal, unlocking, puzzle generation
+./gradlew runTourClient      # scripted walk through every screen; screenshots land in run/screenshots/
 ```
 
-Every push runs the same build and game tests on GitHub Actions and uploads the jar as an artifact.
+Every push runs the same build and game tests on GitHub Actions and uploads the jar as an artifact. A second job runs the screenshot tour under a virtual display and uploads the screenshots.
 
 ## Art
 
