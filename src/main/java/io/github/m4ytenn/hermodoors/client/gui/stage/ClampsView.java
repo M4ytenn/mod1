@@ -83,6 +83,11 @@ public class ClampsView extends StageView {
         return Stage.CLAMPS;
     }
 
+    /** Stage-local point inside the close-up; used by the development screenshot tour. */
+    public static int[] strikePoint() {
+        return new int[] {CLOSEUP_X + CLOSEUP_W / 2, CLOSEUP_Y + CLOSEUP_H / 2};
+    }
+
     private float leverPos(float t) {
         return clamps.leverPosition(t, periodScale);
     }

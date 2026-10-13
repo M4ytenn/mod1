@@ -30,8 +30,8 @@ public class PumpView extends StageView {
     private static final float PIVOT_Y = 60;
     private static final float LEVER_LEN = 40;
     /** Lever angles, screen degrees: up is pointing left and a little up, down is left and down. */
-    private static final float LEVER_UP = 205f;
-    private static final float LEVER_DOWN = 150f;
+    public static final float LEVER_UP = 205f;
+    public static final float LEVER_DOWN = 150f;
     private static final int RELIEF_X = 148;
     private static final int RELIEF_Y = 6;
     private static final float RELAY_X = 26;
@@ -133,6 +133,11 @@ public class PumpView extends StageView {
             Px.sound(SoundEvents.COMPARATOR_CLICK, 0.6f, 0.6f);
             finish(List.of());
         }
+    }
+
+    /** Stage-local position of the pump knob at a lever angle; used by the development screenshot tour. */
+    public static float[] knobAt(float angle) {
+        return new float[] {Px.px(PIVOT_X, LEVER_LEN, angle), Px.py(PIVOT_Y, LEVER_LEN, angle)};
     }
 
     private float knobX(float angle) {

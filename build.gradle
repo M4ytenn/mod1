@@ -37,6 +37,13 @@ neoForge {
             programArguments.addAll '--username', 'Tovarishch'
         }
 
+        // Scripted walk through every screen that saves screenshots and quits (see ScreenshotTour); used by CI.
+        tourClient {
+            client()
+            systemProperty 'hermodoors.tour', 'true'
+            programArguments.addAll '--width', '1280', '--height', '720'
+        }
+
         server {
             server()
             programArgument '--nogui'

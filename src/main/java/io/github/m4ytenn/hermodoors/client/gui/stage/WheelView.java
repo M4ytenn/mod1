@@ -69,6 +69,11 @@ public class WheelView extends StageView {
         return Stage.WHEEL;
     }
 
+    /** Stage-local point on the rim at a screen angle; used by the development screenshot tour. */
+    public static float[] rimPoint(float degrees) {
+        return new float[] {Px.px(CX, 50, degrees), Px.py(CY, 50, degrees)};
+    }
+
     @Override
     public void tick() {
         super.tick();

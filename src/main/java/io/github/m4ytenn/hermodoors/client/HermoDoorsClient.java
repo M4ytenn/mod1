@@ -1,6 +1,7 @@
 package io.github.m4ytenn.hermodoors.client;
 
 import io.github.m4ytenn.hermodoors.HermoDoors;
+import io.github.m4ytenn.hermodoors.client.dev.ScreenshotTour;
 import io.github.m4ytenn.hermodoors.client.gui.DoorPanelScreen;
 import io.github.m4ytenn.hermodoors.client.gui.PassportScreen;
 import io.github.m4ytenn.hermodoors.client.render.DoorRenderer;
@@ -22,6 +23,9 @@ public final class HermoDoorsClient {
         modBus.addListener(HermoDoorsClient::registerScreens);
         modBus.addListener(HermoDoorsClient::registerRenderers);
         container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
+        if (Boolean.getBoolean("hermodoors.tour")) {
+            ScreenshotTour.start();
+        }
     }
 
     private static void registerScreens(RegisterMenuScreensEvent event) {

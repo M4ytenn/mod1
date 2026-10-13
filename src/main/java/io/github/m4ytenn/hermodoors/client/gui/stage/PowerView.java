@@ -76,8 +76,22 @@ public class PowerView extends StageView {
     }
 
     private int breakerX(int i) {
-        int total = power.count * BREAKER_PITCH - (BREAKER_PITCH - BREAKER_W);
+        return breakerX(power.count, i);
+    }
+
+    private static int breakerX(int count, int i) {
+        int total = count * BREAKER_PITCH - (BREAKER_PITCH - BREAKER_W);
         return BREAKER_AREA_X + (BREAKER_AREA_W - total) / 2 + i * BREAKER_PITCH;
+    }
+
+    /** Stage-local centre of the main switch; used by the development screenshot tour. */
+    public static int[] knifeCenter() {
+        return new int[] {KNIFE_X + KNIFE_W / 2, KNIFE_Y + KNIFE_H / 2};
+    }
+
+    /** Stage-local centre of breaker {@code i} out of {@code count}; used by the development screenshot tour. */
+    public static int[] breakerCenter(int count, int i) {
+        return new int[] {breakerX(count, i) + BREAKER_W / 2, BREAKER_Y + BREAKER_H / 2};
     }
 
     @Override
