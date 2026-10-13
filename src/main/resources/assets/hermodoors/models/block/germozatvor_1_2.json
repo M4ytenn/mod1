@@ -1,0 +1,9 @@
+{
+  "textures": {
+    "particle": "hermodoors:block/frame_steel",
+    "side": "hermodoors:block/frame_steel",
+    "front": "hermodoors:block/gate_frame",
+    "hazard": "hermodoors:block/hazard"
+  },
+  "elements": []
+}

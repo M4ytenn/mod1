@@ -1,0 +1,42 @@
+{
+  "door.unseal": {
+    "subtitle": "subtitles.hermodoors.door.unseal",
+    "sounds": [
+      "hermodoors:door/unseal"
+    ]
+  },
+  "door.rumble": {
+    "subtitle": "subtitles.hermodoors.door.rumble",
+    "sounds": [
+      "hermodoors:door/rumble1",
+      "hermodoors:door/rumble2"
+    ]
+  },
+  "panel.hiss": {
+    "subtitle": "subtitles.hermodoors.panel.hiss",
+    "sounds": [
+      "hermodoors:panel/hiss"
+    ]
+  },
+  "panel.arc": {
+    "subtitle": "subtitles.hermodoors.panel.arc",
+    "sounds": [
+      "hermodoors:panel/arc1",
+      "hermodoors:panel/arc2"
+    ]
+  },
+  "panel.hum": {
+    "subtitle": "subtitles.hermodoors.panel.hum",
+    "sounds": [
+      "hermodoors:panel/hum"
+    ]
+  },
+  "passport.type": {
+    "subtitle": "subtitles.hermodoors.passport.type",
+    "sounds": [
+      "hermodoors:passport/type1",
+      "hermodoors:passport/type2",
+      "hermodoors:passport/type3"
+    ]
+  }
+}

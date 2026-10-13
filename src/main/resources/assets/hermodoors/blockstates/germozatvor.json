@@ -1,0 +1,484 @@
+{
+  "variants": {
+    "facing=north,open=false,px=0,py=0": {
+      "model": "hermodoors:block/germozatvor_0_0"
+    },
+    "facing=north,open=false,px=0,py=1": {
+      "model": "hermodoors:block/germozatvor_0_1"
+    },
+    "facing=north,open=false,px=0,py=2": {
+      "model": "hermodoors:block/germozatvor_0_2"
+    },
+    "facing=north,open=false,px=0,py=3": {
+      "model": "hermodoors:block/germozatvor_0_3"
+    },
+    "facing=north,open=false,px=1,py=0": {
+      "model": "hermodoors:block/germozatvor_1_0"
+    },
+    "facing=north,open=false,px=1,py=1": {
+      "model": "hermodoors:block/germozatvor_1_1"
+    },
+    "facing=north,open=false,px=1,py=2": {
+      "model": "hermodoors:block/germozatvor_1_2"
+    },
+    "facing=north,open=false,px=1,py=3": {
+      "model": "hermodoors:block/germozatvor_1_3"
+    },
+    "facing=north,open=false,px=2,py=0": {
+      "model": "hermodoors:block/germozatvor_2_0"
+    },
+    "facing=north,open=false,px=2,py=1": {
+      "model": "hermodoors:block/germozatvor_2_1"
+    },
+    "facing=north,open=false,px=2,py=2": {
+      "model": "hermodoors:block/germozatvor_2_2"
+    },
+    "facing=north,open=false,px=2,py=3": {
+      "model": "hermodoors:block/germozatvor_2_3"
+    },
+    "facing=north,open=false,px=3,py=0": {
+      "model": "hermodoors:block/germozatvor_3_0"
+    },
+    "facing=north,open=false,px=3,py=1": {
+      "model": "hermodoors:block/germozatvor_3_1"
+    },
+    "facing=north,open=false,px=3,py=2": {
+      "model": "hermodoors:block/germozatvor_3_2"
+    },
+    "facing=north,open=false,px=3,py=3": {
+      "model": "hermodoors:block/germozatvor_3_3"
+    },
+    "facing=north,open=true,px=0,py=0": {
+      "model": "hermodoors:block/germozatvor_0_0"
+    },
+    "facing=north,open=true,px=0,py=1": {
+      "model": "hermodoors:block/germozatvor_0_1"
+    },
+    "facing=north,open=true,px=0,py=2": {
+      "model": "hermodoors:block/germozatvor_0_2"
+    },
+    "facing=north,open=true,px=0,py=3": {
+      "model": "hermodoors:block/germozatvor_0_3"
+    },
+    "facing=north,open=true,px=1,py=0": {
+      "model": "hermodoors:block/germozatvor_1_0"
+    },
+    "facing=north,open=true,px=1,py=1": {
+      "model": "hermodoors:block/germozatvor_1_1"
+    },
+    "facing=north,open=true,px=1,py=2": {
+      "model": "hermodoors:block/germozatvor_1_2"
+    },
+    "facing=north,open=true,px=1,py=3": {
+      "model": "hermodoors:block/germozatvor_1_3"
+    },
+    "facing=north,open=true,px=2,py=0": {
+      "model": "hermodoors:block/germozatvor_2_0"
+    },
+    "facing=north,open=true,px=2,py=1": {
+      "model": "hermodoors:block/germozatvor_2_1"
+    },
+    "facing=north,open=true,px=2,py=2": {
+      "model": "hermodoors:block/germozatvor_2_2"
+    },
+    "facing=north,open=true,px=2,py=3": {
+      "model": "hermodoors:block/germozatvor_2_3"
+    },
+    "facing=north,open=true,px=3,py=0": {
+      "model": "hermodoors:block/germozatvor_3_0"
+    },
+    "facing=north,open=true,px=3,py=1": {
+      "model": "hermodoors:block/germozatvor_3_1"
+    },
+    "facing=north,open=true,px=3,py=2": {
+      "model": "hermodoors:block/germozatvor_3_2"
+    },
+    "facing=north,open=true,px=3,py=3": {
+      "model": "hermodoors:block/germozatvor_3_3"
+    },
+    "facing=east,open=false,px=0,py=0": {
+      "model": "hermodoors:block/germozatvor_0_0",
+      "y": 90
+    },
+    "facing=east,open=false,px=0,py=1": {
+      "model": "hermodoors:block/germozatvor_0_1",
+      "y": 90
+    },
+    "facing=east,open=false,px=0,py=2": {
+      "model": "hermodoors:block/germozatvor_0_2",
+      "y": 90
+    },
+    "facing=east,open=false,px=0,py=3": {
+      "model": "hermodoors:block/germozatvor_0_3",
+      "y": 90
+    },
+    "facing=east,open=false,px=1,py=0": {
+      "model": "hermodoors:block/germozatvor_1_0",
+      "y": 90
+    },
+    "facing=east,open=false,px=1,py=1": {
+      "model": "hermodoors:block/germozatvor_1_1",
+      "y": 90
+    },
+    "facing=east,open=false,px=1,py=2": {
+      "model": "hermodoors:block/germozatvor_1_2",
+      "y": 90
+    },
+    "facing=east,open=false,px=1,py=3": {
+      "model": "hermodoors:block/germozatvor_1_3",
+      "y": 90
+    },
+    "facing=east,open=false,px=2,py=0": {
+      "model": "hermodoors:block/germozatvor_2_0",
+      "y": 90
+    },
+    "facing=east,open=false,px=2,py=1": {
+      "model": "hermodoors:block/germozatvor_2_1",
+      "y": 90
+    },
+    "facing=east,open=false,px=2,py=2": {
+      "model": "hermodoors:block/germozatvor_2_2",
+      "y": 90
+    },
+    "facing=east,open=false,px=2,py=3": {
+      "model": "hermodoors:block/germozatvor_2_3",
+      "y": 90
+    },
+    "facing=east,open=false,px=3,py=0": {
+      "model": "hermodoors:block/germozatvor_3_0",
+      "y": 90
+    },
+    "facing=east,open=false,px=3,py=1": {
+      "model": "hermodoors:block/germozatvor_3_1",
+      "y": 90
+    },
+    "facing=east,open=false,px=3,py=2": {
+      "model": "hermodoors:block/germozatvor_3_2",
+      "y": 90
+    },
+    "facing=east,open=false,px=3,py=3": {
+      "model": "hermodoors:block/germozatvor_3_3",
+      "y": 90
+    },
+    "facing=east,open=true,px=0,py=0": {
+      "model": "hermodoors:block/germozatvor_0_0",
+      "y": 90
+    },
+    "facing=east,open=true,px=0,py=1": {
+      "model": "hermodoors:block/germozatvor_0_1",
+      "y": 90
+    },
+    "facing=east,open=true,px=0,py=2": {
+      "model": "hermodoors:block/germozatvor_0_2",
+      "y": 90
+    },
+    "facing=east,open=true,px=0,py=3": {
+      "model": "hermodoors:block/germozatvor_0_3",
+      "y": 90
+    },
+    "facing=east,open=true,px=1,py=0": {
+      "model": "hermodoors:block/germozatvor_1_0",
+      "y": 90
+    },
+    "facing=east,open=true,px=1,py=1": {
+      "model": "hermodoors:block/germozatvor_1_1",
+      "y": 90
+    },
+    "facing=east,open=true,px=1,py=2": {
+      "model": "hermodoors:block/germozatvor_1_2",
+      "y": 90
+    },
+    "facing=east,open=true,px=1,py=3": {
+      "model": "hermodoors:block/germozatvor_1_3",
+      "y": 90
+    },
+    "facing=east,open=true,px=2,py=0": {
+      "model": "hermodoors:block/germozatvor_2_0",
+      "y": 90
+    },
+    "facing=east,open=true,px=2,py=1": {
+      "model": "hermodoors:block/germozatvor_2_1",
+      "y": 90
+    },
+    "facing=east,open=true,px=2,py=2": {
+      "model": "hermodoors:block/germozatvor_2_2",
+      "y": 90
+    },
+    "facing=east,open=true,px=2,py=3": {
+      "model": "hermodoors:block/germozatvor_2_3",
+      "y": 90
+    },
+    "facing=east,open=true,px=3,py=0": {
+      "model": "hermodoors:block/germozatvor_3_0",
+      "y": 90
+    },
+    "facing=east,open=true,px=3,py=1": {
+      "model": "hermodoors:block/germozatvor_3_1",
+      "y": 90
+    },
+    "facing=east,open=true,px=3,py=2": {
+      "model": "hermodoors:block/germozatvor_3_2",
+      "y": 90
+    },
+    "facing=east,open=true,px=3,py=3": {
+      "model": "hermodoors:block/germozatvor_3_3",
+      "y": 90
+    },
+    "facing=south,open=false,px=0,py=0": {
+      "model": "hermodoors:block/germozatvor_0_0",
+      "y": 180
+    },
+    "facing=south,open=false,px=0,py=1": {
+      "model": "hermodoors:block/germozatvor_0_1",
+      "y": 180
+    },
+    "facing=south,open=false,px=0,py=2": {
+      "model": "hermodoors:block/germozatvor_0_2",
+      "y": 180
+    },
+    "facing=south,open=false,px=0,py=3": {
+      "model": "hermodoors:block/germozatvor_0_3",
+      "y": 180
+    },
+    "facing=south,open=false,px=1,py=0": {
+      "model": "hermodoors:block/germozatvor_1_0",
+      "y": 180
+    },
+    "facing=south,open=false,px=1,py=1": {
+      "model": "hermodoors:block/germozatvor_1_1",
+      "y": 180
+    },
+    "facing=south,open=false,px=1,py=2": {
+      "model": "hermodoors:block/germozatvor_1_2",
+      "y": 180
+    },
+    "facing=south,open=false,px=1,py=3": {
+      "model": "hermodoors:block/germozatvor_1_3",
+      "y": 180
+    },
+    "facing=south,open=false,px=2,py=0": {
+      "model": "hermodoors:block/germozatvor_2_0",
+      "y": 180
+    },
+    "facing=south,open=false,px=2,py=1": {
+      "model": "hermodoors:block/germozatvor_2_1",
+      "y": 180
+    },
+    "facing=south,open=false,px=2,py=2": {
+      "model": "hermodoors:block/germozatvor_2_2",
+      "y": 180
+    },
+    "facing=south,open=false,px=2,py=3": {
+      "model": "hermodoors:block/germozatvor_2_3",
+      "y": 180
+    },
+    "facing=south,open=false,px=3,py=0": {
+      "model": "hermodoors:block/germozatvor_3_0",
+      "y": 180
+    },
+    "facing=south,open=false,px=3,py=1": {
+      "model": "hermodoors:block/germozatvor_3_1",
+      "y": 180
+    },
+    "facing=south,open=false,px=3,py=2": {
+      "model": "hermodoors:block/germozatvor_3_2",
+      "y": 180
+    },
+    "facing=south,open=false,px=3,py=3": {
+      "model": "hermodoors:block/germozatvor_3_3",
+      "y": 180
+    },
+    "facing=south,open=true,px=0,py=0": {
+      "model": "hermodoors:block/germozatvor_0_0",
+      "y": 180
+    },
+    "facing=south,open=true,px=0,py=1": {
+      "model": "hermodoors:block/germozatvor_0_1",
+      "y": 180
+    },
+    "facing=south,open=true,px=0,py=2": {
+      "model": "hermodoors:block/germozatvor_0_2",
+      "y": 180
+    },
+    "facing=south,open=true,px=0,py=3": {
+      "model": "hermodoors:block/germozatvor_0_3",
+      "y": 180
+    },
+    "facing=south,open=true,px=1,py=0": {
+      "model": "hermodoors:block/germozatvor_1_0",
+      "y": 180
+    },
+    "facing=south,open=true,px=1,py=1": {
+      "model": "hermodoors:block/germozatvor_1_1",
+      "y": 180
+    },
+    "facing=south,open=true,px=1,py=2": {
+      "model": "hermodoors:block/germozatvor_1_2",
+      "y": 180
+    },
+    "facing=south,open=true,px=1,py=3": {
+      "model": "hermodoors:block/germozatvor_1_3",
+      "y": 180
+    },
+    "facing=south,open=true,px=2,py=0": {
+      "model": "hermodoors:block/germozatvor_2_0",
+      "y": 180
+    },
+    "facing=south,open=true,px=2,py=1": {
+      "model": "hermodoors:block/germozatvor_2_1",
+      "y": 180
+    },
+    "facing=south,open=true,px=2,py=2": {
+      "model": "hermodoors:block/germozatvor_2_2",
+      "y": 180
+    },
+    "facing=south,open=true,px=2,py=3": {
+      "model": "hermodoors:block/germozatvor_2_3",
+      "y": 180
+    },
+    "facing=south,open=true,px=3,py=0": {
+      "model": "hermodoors:block/germozatvor_3_0",
+      "y": 180
+    },
+    "facing=south,open=true,px=3,py=1": {
+      "model": "hermodoors:block/germozatvor_3_1",
+      "y": 180
+    },
+    "facing=south,open=true,px=3,py=2": {
+      "model": "hermodoors:block/germozatvor_3_2",
+      "y": 180
+    },
+    "facing=south,open=true,px=3,py=3": {
+      "model": "hermodoors:block/germozatvor_3_3",
+      "y": 180
+    },
+    "facing=west,open=false,px=0,py=0": {
+      "model": "hermodoors:block/germozatvor_0_0",
+      "y": 270
+    },
+    "facing=west,open=false,px=0,py=1": {
+      "model": "hermodoors:block/germozatvor_0_1",
+      "y": 270
+    },
+    "facing=west,open=false,px=0,py=2": {
+      "model": "hermodoors:block/germozatvor_0_2",
+      "y": 270
+    },
+    "facing=west,open=false,px=0,py=3": {
+      "model": "hermodoors:block/germozatvor_0_3",
+      "y": 270
+    },
+    "facing=west,open=false,px=1,py=0": {
+      "model": "hermodoors:block/germozatvor_1_0",
+      "y": 270
+    },
+    "facing=west,open=false,px=1,py=1": {
+      "model": "hermodoors:block/germozatvor_1_1",
+      "y": 270
+    },
+    "facing=west,open=false,px=1,py=2": {
+      "model": "hermodoors:block/germozatvor_1_2",
+      "y": 270
+    },
+    "facing=west,open=false,px=1,py=3": {
+      "model": "hermodoors:block/germozatvor_1_3",
+      "y": 270
+    },
+    "facing=west,open=false,px=2,py=0": {
+      "model": "hermodoors:block/germozatvor_2_0",
+      "y": 270
+    },
+    "facing=west,open=false,px=2,py=1": {
+      "model": "hermodoors:block/germozatvor_2_1",
+      "y": 270
+    },
+    "facing=west,open=false,px=2,py=2": {
+      "model": "hermodoors:block/germozatvor_2_2",
+      "y": 270
+    },
+    "facing=west,open=false,px=2,py=3": {
+      "model": "hermodoors:block/germozatvor_2_3",
+      "y": 270
+    },
+    "facing=west,open=false,px=3,py=0": {
+      "model": "hermodoors:block/germozatvor_3_0",
+      "y": 270
+    },
+    "facing=west,open=false,px=3,py=1": {
+      "model": "hermodoors:block/germozatvor_3_1",
+      "y": 270
+    },
+    "facing=west,open=false,px=3,py=2": {
+      "model": "hermodoors:block/germozatvor_3_2",
+      "y": 270
+    },
+    "facing=west,open=false,px=3,py=3": {
+      "model": "hermodoors:block/germozatvor_3_3",
+      "y": 270
+    },
+    "facing=west,open=true,px=0,py=0": {
+      "model": "hermodoors:block/germozatvor_0_0",
+      "y": 270
+    },
+    "facing=west,open=true,px=0,py=1": {
+      "model": "hermodoors:block/germozatvor_0_1",
+      "y": 270
+    },
+    "facing=west,open=true,px=0,py=2": {
+      "model": "hermodoors:block/germozatvor_0_2",
+      "y": 270
+    },
+    "facing=west,open=true,px=0,py=3": {
+      "model": "hermodoors:block/germozatvor_0_3",
+      "y": 270
+    },
+    "facing=west,open=true,px=1,py=0": {
+      "model": "hermodoors:block/germozatvor_1_0",
+      "y": 270
+    },
+    "facing=west,open=true,px=1,py=1": {
+      "model": "hermodoors:block/germozatvor_1_1",
+      "y": 270
+    },
+    "facing=west,open=true,px=1,py=2": {
+      "model": "hermodoors:block/germozatvor_1_2",
+      "y": 270
+    },
+    "facing=west,open=true,px=1,py=3": {
+      "model": "hermodoors:block/germozatvor_1_3",
+      "y": 270
+    },
+    "facing=west,open=true,px=2,py=0": {
+      "model": "hermodoors:block/germozatvor_2_0",
+      "y": 270
+    },
+    "facing=west,open=true,px=2,py=1": {
+      "model": "hermodoors:block/germozatvor_2_1",
+      "y": 270
+    },
+    "facing=west,open=true,px=2,py=2": {
+      "model": "hermodoors:block/germozatvor_2_2",
+      "y": 270
+    },
+    "facing=west,open=true,px=2,py=3": {
+      "model": "hermodoors:block/germozatvor_2_3",
+      "y": 270
+    },
+    "facing=west,open=true,px=3,py=0": {
+      "model": "hermodoors:block/germozatvor_3_0",
+      "y": 270
+    },
+    "facing=west,open=true,px=3,py=1": {
+      "model": "hermodoors:block/germozatvor_3_1",
+      "y": 270
+    },
+    "facing=west,open=true,px=3,py=2": {
+      "model": "hermodoors:block/germozatvor_3_2",
+      "y": 270
+    },
+    "facing=west,open=true,px=3,py=3": {
+      "model": "hermodoors:block/germozatvor_3_3",
+      "y": 270
+    }
+  }
+}

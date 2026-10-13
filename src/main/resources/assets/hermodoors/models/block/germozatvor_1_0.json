@@ -1,0 +1,42 @@
+{
+  "textures": {
+    "particle": "hermodoors:block/frame_steel",
+    "side": "hermodoors:block/frame_steel",
+    "front": "hermodoors:block/gate_frame",
+    "hazard": "hermodoors:block/hazard"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        1,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#side"
+        },
+        "south": {
+          "texture": "#side"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "west": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#side"
+        },
+        "down": {
+          "texture": "#side"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "BPB",
+    "RDR",
+    "BBB"
+  ],
+  "key": {
+    "B": {
+      "tag": "c:storage_blocks/iron"
+    },
+    "P": {
+      "item": "minecraft:piston"
+    },
+    "R": {
+      "tag": "c:dusts/redstone"
+    },
+    "D": {
+      "item": "hermodoors:dzg_door"
+    }
+  },
+  "result": {
+    "id": "hermodoors:germozatvor",
+    "count": 1
+  }
+}
