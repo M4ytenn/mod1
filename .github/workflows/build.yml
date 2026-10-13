@@ -67,3 +67,30 @@ jobs:
             run/screenshots/
             run/logs/latest.log
           if-no-files-found: warn
+
+      # For reviewing the art without downloading artifacts: only for commits whose message contains [screenshots].
+      - name: Print screenshots into the log
+        if: always() && contains(github.event.head_commit.message, '[screenshots]')
+        run: |
+          pip install --quiet pillow
+          python3 - <<'PY'
+          import base64, glob, io, os
+          from PIL import Image
+          for path in sorted(glob.glob('run/screenshots/*.png')):
+              name = os.path.basename(path)
+              im = Image.open(path).convert('RGB')
+              out = io.BytesIO()
+              if any(k in name for k in ('passport', 'power', 'pump', 'clamps', 'wheel')):
+                  # GUI shots: undo the integer GUI scale (3 at 1280x720) and keep the middle.
+                  w3, h3 = im.width // 3 * 3, im.height // 3 * 3
+                  small = im.crop((0, 0, w3, h3)).resize((w3 // 3, h3 // 3), Image.NEAREST)
+                  cx, cy = small.width // 2, small.height // 2
+                  small.crop((cx - 140, cy - 100, cx + 140, cy + 100)).save(out, 'PNG', optimize=True)
+              else:
+                  im.resize((640, 360), Image.LANCZOS).save(out, 'JPEG', quality=82)
+              data = base64.b64encode(out.getvalue()).decode()
+              print(f'TOURFILE {name} {len(data)}')
+              for i in range(0, len(data), 76):
+                  print(data[i:i + 76])
+              print('TOUREND')
+          PY
