@@ -48,5 +48,6 @@ def write(res_root, size=(8, 8, 8), data_version=3955):
     )
     path = os.path.join(res_root, 'data', 'hermodoors', 'structure', 'empty.nbt')
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    with gzip.open(path, 'wb') as f:
+    # Fixed header (no file name, mtime 0) so regenerating does not touch the file.
+    with open(path, 'wb') as raw, gzip.GzipFile(filename='', mode='wb', fileobj=raw, mtime=0) as f:
         f.write(root)

@@ -66,6 +66,16 @@ public class PassportScreen extends AbstractContainerScreen<DoorPassportMenu> {
     private int confirmWriteOff;
     private int ticks;
 
+    /** Screen-local click point on a procedure step line; used by the development screenshot tour. */
+    public static int[] stepPoint(Stage stage) {
+        return new int[] {BOX_X + 10, STEP_Y + stage.ordinal() * STEP_H + 3};
+    }
+
+    /** Screen-local centre of the place for the stamp; used by the development screenshot tour. */
+    public static int[] stampPoint() {
+        return new int[] {STAMP_X + STAMP_SIZE / 2, STAMP_Y + STAMP_SIZE / 2};
+    }
+
     public PassportScreen(DoorPassportMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
         this.imageWidth = WIDTH;
@@ -124,8 +134,9 @@ public class PassportScreen extends AbstractContainerScreen<DoorPassportMenu> {
         // Printed heading.
         g.pose().pushPose();
         Component heading = Component.translatable("passport.hermodoors.title");
-        g.pose().translate(x + WIDTH / 2f - font.width(heading) * 0.75f, y + 9, 0);
-        g.pose().scale(1.5f, 1.5f, 1f);
+        // Whole-number scale keeps the heading's pixels square at every GUI scale.
+        g.pose().translate(x + WIDTH / 2f - font.width(heading), y + 7, 0);
+        g.pose().scale(2f, 2f, 1f);
         g.drawString(font, heading, 0, 0, PRINT, false);
         g.pose().popPose();
         Component kind = Component.translatable("passport.hermodoors.kind." + type.id);
@@ -207,7 +218,8 @@ public class PassportScreen extends AbstractContainerScreen<DoorPassportMenu> {
 
         if (menu.firstPlacement() && approveTimer < 0) {
             Component note = Component.translatable("passport.hermodoors.fill_in");
-            g.drawString(font, note, x + WIDTH - 10 - font.width(note), y + 2, Art.RED_PENCIL, false);
+            // Red pencil in the top corner, clear of the heading.
+            g.drawString(font, note, x + WIDTH - 8 - font.width(note), y + 2, Art.RED_PENCIL, false);
         }
     }
 

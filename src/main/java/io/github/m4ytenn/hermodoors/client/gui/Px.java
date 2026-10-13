@@ -16,7 +16,6 @@ import net.minecraft.sounds.SoundEvent;
  */
 public final class Px {
     public static final ResourceLocation STENCIL_FONT = HermoDoors.id("stencil");
-    public static final ResourceLocation TYPEWRITER_FONT = ResourceLocation.withDefaultNamespace("uniform");
 
     private Px() {}
 
@@ -174,25 +173,21 @@ public final class Px {
     }
 
     /**
-     * Typewritten text: every letter struck separately, some a pixel low and some with a lighter ribbon,
-     * deterministic per {@code seed} so it does not crawl from frame to frame.
+     * Typewritten text: every letter struck separately in ribbon ink, some a pixel low and some fainter,
+     * deterministic per {@code seed} so it does not crawl from frame to frame. Uses the regular font, which
+     * stays crisp at every GUI scale.
      */
     public static int typewrite(GuiGraphics g, Font font, String text, int x, int y, int ink, int seed, boolean jitter) {
         int cx = x;
         for (int i = 0; i < text.length(); i++) {
             String ch = String.valueOf(text.charAt(i));
-            MutableComponent glyph = Component.literal(ch).withStyle(s -> s.withFont(TYPEWRITER_FONT));
             int h = hash(seed, i);
             int dy = jitter && (h & 7) == 0 ? 1 : 0;
             int color = jitter && ((h >> 3) & 3) == 0 ? fade(ink, 0.78f) : ink;
-            g.drawString(font, glyph, cx, y + dy, color, false);
-            cx += font.width(glyph);
+            g.drawString(font, ch, cx, y + dy, color, false);
+            cx += font.width(ch);
         }
         return cx;
-    }
-
-    public static int typewriterWidth(Font font, String text) {
-        return font.width(Component.literal(text).withStyle(s -> s.withFont(TYPEWRITER_FONT)));
     }
 
     public static int hash(int seed, int i) {

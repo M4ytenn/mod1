@@ -201,12 +201,12 @@ def build():
     icon(168, 64, (RUST[1], RUST[4], RUST[3], RUST[0]))
     icon(175, 64, (STEEL[2], STEEL[6], STEEL[4], STEEL[1]))
     icon(182, 64, (STEEL[3], STEEL[7], STEEL[5], STEEL[2]), rgb('#3fae4c'))
-    # hand-drawn chalk circle 13 x 13
-    r = random.Random(313)
-    for k in range(40):
-        a = k / 40 * math.tau * 1.1
+    # red pencil ring round the clamp being worked (chalk would vanish on the cream enamel), 13 x 13
+    pencil = rgb('#b02a1e')
+    for k in range(46):
+        a = k / 40 * math.tau
         rr = 5.6 + math.sin(a * 3) * 0.4
-        cv.set(int(196.5 + math.cos(a) * rr), int(70.5 + math.sin(a) * rr), CHALK)
+        cv.set(int(196.5 + math.cos(a) * rr), int(70.5 + math.sin(a) * rr), pencil)
     return cv
 
 

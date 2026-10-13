@@ -100,6 +100,10 @@ public final class ScreenshotTour {
             }
             return;
         }
+        if (mc.screen != null) {
+            // Keep the real cursor out of the way so hover tooltips never cover a shot.
+            GLFW.glfwSetCursorPos(mc.getWindow().getWindow(), 2, 2);
+        }
         if (wait > 0) {
             wait--;
             return;
@@ -271,7 +275,21 @@ public final class ScreenshotTour {
         add("shot gate open", 110, () -> shot("14_gate_open"), null);
         add("side view", 5, () -> server(ctx -> ctx.player().teleportTo(ctx.level(), dzg.getX() - 1.5, dzg.getY(), dzg.getZ() - 3.2, -35f, 10f)), null);
         add("shot side view", 30, () -> shot("15_dzg_side"), null);
-        add("quit", 20, () -> {
+        add("switch to Russian", 5, () -> {
+            mc.options.languageCode = "ru_ru";
+            mc.getLanguageManager().setSelected("ru_ru");
+            mc.reloadResourcePacks();
+        }, null);
+        add("passport in Russian", 40, () -> server(ctx -> {
+            if (ctx.level().getBlockEntity(dzg) instanceof HermoDoorBlockEntity door) {
+                door.openPassport(ctx.player(), true);
+            }
+        }), () -> mc.getOverlay() == null);
+        add("shot passport ru", 30, () -> shot("16_passport_ru"), () -> mc.screen instanceof PassportScreen);
+        add("untick clamps", 5, () -> clickPassport(PassportScreen.stepPoint(Stage.CLAMPS)), null);
+        add("stamp", 10, () -> clickPassport(PassportScreen.stampPoint()), null);
+        add("shot stamped", 6, () -> shot("17_passport_stamped"), null);
+        add("quit", 40, () -> {
             log("done");
             mc.stop();
         }, null);
@@ -306,8 +324,6 @@ public final class ScreenshotTour {
     }
 
     private void shot(String name) {
-        // Park the real cursor in a corner so no tooltip covers the screen being photographed.
-        GLFW.glfwSetCursorPos(mc.getWindow().getWindow(), 2, 2);
         Screenshot.grab(mc.gameDirectory, name + ".png", mc.getMainRenderTarget(), message -> log(message.getString()));
     }
 
@@ -347,6 +363,16 @@ public final class ScreenshotTour {
                 HermoDoors.LOGGER.info("[tour] server accepted {}: {}", stage.id, ok);
             }
         });
+    }
+
+    private void clickPassport(int[] local) {
+        Screen screen = mc.screen;
+        if (screen != null) {
+            double x = (screen.width - PassportScreen.WIDTH) / 2 + local[0];
+            double y = (screen.height - PassportScreen.HEIGHT) / 2 + local[1];
+            screen.mouseClicked(x, y, 0);
+            screen.mouseReleased(x, y, 0);
+        }
     }
 
     // ---------------------------------------------------------------- mouse on the panel
