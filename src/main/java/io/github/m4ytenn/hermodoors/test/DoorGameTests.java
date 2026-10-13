@@ -4,14 +4,22 @@ import io.github.m4ytenn.hermodoors.HermoDoors;
 import io.github.m4ytenn.hermodoors.door.DoorType;
 import io.github.m4ytenn.hermodoors.door.HermoDoorBlock;
 import io.github.m4ytenn.hermodoors.door.HermoDoorBlockEntity;
+import io.github.m4ytenn.hermodoors.door.Stage;
+import io.github.m4ytenn.hermodoors.network.ConfigureDoorPayload;
+import io.github.m4ytenn.hermodoors.network.DismantleDoorPayload;
+import io.github.m4ytenn.hermodoors.network.PanelActionPayload;
+import io.github.m4ytenn.hermodoors.network.StageCompletePayload;
 import io.github.m4ytenn.hermodoors.puzzle.PuzzleSpec;
 import io.github.m4ytenn.hermodoors.registry.ModBlocks;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
@@ -182,5 +190,29 @@ public final class DoorGameTests {
             }
         }
         helper.succeed();
+    }
+
+    /** Single player hands packets over in memory, so this is the only place the payload codecs get exercised. */
+    @GameTest(template = "empty")
+    public static void payloadsSurviveTheWire(GameTestHelper helper) {
+        BlockPos pos = new BlockPos(-29_999_000, -60, 29_999_000);
+        roundTrip(helper, ConfigureDoorPayload.STREAM_CODEC, new ConfigureDoorPayload(pos, 0b1011, 3, true));
+        roundTrip(helper, DismantleDoorPayload.STREAM_CODEC, new DismantleDoorPayload(pos));
+        roundTrip(helper, StageCompletePayload.STREAM_CODEC, new StageCompletePayload(pos, Stage.POWER.ordinal(), List.of(2, 0, 5, 1, 4, 3)));
+        roundTrip(helper, PanelActionPayload.STREAM_CODEC, new PanelActionPayload(pos, HermoDoorBlockEntity.PanelAction.WHEEL_ANGLE.ordinal(), -1440));
+        helper.succeed();
+    }
+
+    private static <T> void roundTrip(GameTestHelper helper, StreamCodec<ByteBuf, T> codec, T payload) {
+        ByteBuf buf = Unpooled.buffer();
+        try {
+            codec.encode(buf, payload);
+            T back = codec.decode(buf);
+            if (!payload.equals(back) || buf.isReadable()) {
+                helper.fail("Payload changed on the wire: " + payload + " came back as " + back);
+            }
+        } finally {
+            buf.release();
+        }
     }
 }
