@@ -28,7 +28,7 @@
   "message.hermodoors.not_owner": "Only the person in charge (%s) may change this passport",
   "message.hermodoors.unlocked": "The seal gives. The door is free.",
   "passport.hermodoors.field.model": "Model:",
-  "passport.hermodoors.field.owner": "In charge:",
+  "passport.hermodoors.field.owner": "Installed by:",
   "passport.hermodoors.field.serial": "Serial No.:",
   "passport.hermodoors.field.year": "Year built:",
   "passport.hermodoors.fill_in": "Fill in!",

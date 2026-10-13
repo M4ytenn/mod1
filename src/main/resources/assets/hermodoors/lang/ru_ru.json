@@ -28,7 +28,7 @@
   "message.hermodoors.not_owner": "Паспорт может менять только ответственный (%s)",
   "message.hermodoors.unlocked": "Герметичность нарушена. Дверь свободна.",
   "passport.hermodoors.field.model": "Изделие:",
-  "passport.hermodoors.field.owner": "Ответственный:",
+  "passport.hermodoors.field.owner": "Установил:",
   "passport.hermodoors.field.serial": "Заводской №:",
   "passport.hermodoors.field.year": "Год выпуска:",
   "passport.hermodoors.fill_in": "Заполнить!",

@@ -12,6 +12,7 @@ import io.github.m4ytenn.hermodoors.door.HermoDoorBlockEntity;
 import io.github.m4ytenn.hermodoors.door.Stage;
 import io.github.m4ytenn.hermodoors.puzzle.PuzzleSpec;
 import io.github.m4ytenn.hermodoors.registry.ModBlocks;
+import java.lang.reflect.Field;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.MouseHandler;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -44,7 +46,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import org.lwjgl.glfw.GLFW;
 
 /**
  * Development aid, only active with {@code -Dhermodoors.tour=true} (the {@code runTourClient} task): creates a
@@ -67,6 +68,9 @@ public final class ScreenshotTour {
     private BlockPos gate = BlockPos.ZERO;
     private float mouseX;
     private float mouseY;
+    private Field mouseXField;
+    private Field mouseYField;
+    private boolean mouseParkFailed;
 
     private record Step(String name, int delay, Runnable action, BooleanSupplier ready) {}
 
@@ -101,8 +105,9 @@ public final class ScreenshotTour {
             return;
         }
         if (mc.screen != null) {
-            // Keep the real cursor out of the way so hover tooltips never cover a shot.
-            GLFW.glfwSetCursorPos(mc.getWindow().getWindow(), 2, 2);
+            // Keep the cursor out of the way so hover tooltips never cover a shot. Opening a screen centres it,
+            // and moving the real pointer does not reach the game under a virtual display, hence the fields.
+            parkMouse();
         }
         if (wait > 0) {
             wait--;
@@ -316,6 +321,25 @@ public final class ScreenshotTour {
         }
         for (int i = plan.size() - 1; i >= 0; i--) {
             steps.addFirst(plan.get(i));
+        }
+    }
+
+    private void parkMouse() {
+        if (mouseParkFailed) {
+            return;
+        }
+        try {
+            if (mouseXField == null) {
+                mouseXField = MouseHandler.class.getDeclaredField("xpos");
+                mouseYField = MouseHandler.class.getDeclaredField("ypos");
+                mouseXField.setAccessible(true);
+                mouseYField.setAccessible(true);
+            }
+            mouseXField.setDouble(mc.mouseHandler, 2);
+            mouseYField.setDouble(mc.mouseHandler, 2);
+        } catch (ReflectiveOperationException | RuntimeException e) {
+            mouseParkFailed = true;
+            HermoDoors.LOGGER.warn("[tour] could not park the mouse", e);
         }
     }
 

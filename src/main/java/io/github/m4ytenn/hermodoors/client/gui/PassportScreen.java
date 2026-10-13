@@ -152,8 +152,11 @@ public class PassportScreen extends AbstractContainerScreen<DoorPassportMenu> {
         };
         for (int i = 0; i < labels.length; i++) {
             int ly = y + FIELD_Y + i * 9;
-            g.drawString(font, Component.translatable("passport.hermodoors.field." + labels[i]), x + 20, ly, PRINT, false);
-            Px.typewrite(g, font, values[i], x + FIELD_X, ly, Art.TYPE_INK, seed + i * 17, jitter);
+            Component label = Component.translatable("passport.hermodoors.field." + labels[i]);
+            g.drawString(font, label, x + 20, ly, PRINT, false);
+            // A long label in some translation pushes its entry right rather than typing over it.
+            int vx = Math.max(x + FIELD_X, x + 20 + font.width(label) + 4);
+            Px.typewrite(g, font, values[i], vx, ly, Art.TYPE_INK, seed + i * 17, jitter);
         }
 
         // 1. Opening procedure.
