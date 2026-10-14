@@ -100,3 +100,55 @@ jobs:
                   print(data[i:i + 2000])
               print('TOUREND')
           PY
+
+  # The Sub Sonar Vista add-on in subsonar-vista/ is a separate Gradle project. It compiles against stubs of the
+  # Sub Sonar classes it calls, so the build needs Vista and Moonlight only.
+  subsonar-vista:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: subsonar-vista
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      - name: Download Vista and Moonlight
+        run: python3 tools/fetch_libs.py
+
+      - name: Build with Gradle
+        run: ./gradlew build --stacktrace
+
+      - name: Check the jar holds only the add-on
+        run: |
+          unzip -l build/libs/subsonar_vista-*.jar
+          if unzip -Z1 build/libs/subsonar_vista-*.jar | grep '^com/subsonar/' | grep -v '^com/subsonar/vista/'; then
+            echo "Sub Sonar stubs ended up in the jar"
+            exit 1
+          fi
+
+      - name: Upload add-on jar
+        uses: actions/upload-artifact@v6
+        with:
+          name: subsonar-vista-jar
+          path: subsonar-vista/build/libs/*.jar
+          if-no-files-found: error
+
+      # For fetching the jar without the artifact download: only for commits whose message contains [addon-jar].
+      - name: Print the jar into the log
+        if: contains(github.event.head_commit.message, '[addon-jar]')
+        run: |
+          for f in build/libs/*.jar; do
+            data=$(base64 -w 0 "$f")
+            echo "TOURFILE $(basename "$f") ${#data}"
+            echo "$data" | fold -w 2000
+            echo "TOUREND"
+          done

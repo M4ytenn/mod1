@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.subsonar.vista.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "SonarConsoleBlockEntityMixin"
+  ],
+  "client": [
+    "ClientPayloadHandlerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

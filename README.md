@@ -88,3 +88,7 @@ Textures, the 5-pixel Cyrillic stencil font, block models and the synthesised so
 python3 tools/artgen/build_all.py            # everything
 python3 tools/artgen/build_all.py --no-sounds
 ```
+
+## Also in this repository
+
+`subsonar-vista/` is a separate add-on, **Sub Sonar: Vista Link**, that shows the Sub Sonar display on Vista televisions. It has its own build and [README](subsonar-vista/README.md).
